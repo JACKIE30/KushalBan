@@ -1,5 +1,8 @@
-# dependencies
-node_modules/
+# ========================
+# Dependencies
+# ========================
+# Frontend
+frontend/node_modules/
 .pnp
 .pnp.*
 .yarn/*
@@ -8,39 +11,53 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Backend
+backend/node_modules/
+
+# ========================
+# Testing
+# ========================
 coverage/
 
-# Next.js
+# ========================
+# Next.js / Frontend builds
+# ========================
 .next/
 out/
-
-# production builds
 build/
 dist/
 
-# misc
+# Backend builds
+backend/build/
+backend/dist/
+
+# ========================
+# Misc
+# ========================
 .DS_Store
 *.pem
 
-# debug logs
+# ========================
+# Debug logs
+# ========================
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# env files (commit only if safe)
+# ========================
+# Environment files
+# ========================
 .env*
 !.env.example
 
-# vercel
+# ========================
+# Vercel
+# ========================
 .vercel/
 
-# typescript
+# ========================
+# TypeScript
+# ========================
 *.tsbuildinfo
 next-env.d.ts
-
-# Backend specific
-backend/node_modules/
-backend/dist/
-backend/build/
