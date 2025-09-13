@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui
 import { ScrollArea } from '../../../components/ui/scroll-area'
 import { Separator } from '../../../components/ui/separator'
 import { useLanguage } from './LanguageContext'
+import { API_CONFIG } from '../config/api'
 
 interface ExtractedEntity {
   text: string
@@ -41,82 +42,114 @@ export function OCRProcessor() {
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Mock OCR processing with realistic delays and results
+  // Real OCR processing with backend API
   const processFile = useCallback(async (file: File): Promise<OCRResult> => {
     const result: OCRResult = {
-      id: Date.now().toString(),
+      id: '', // Will be set from backend response
       filename: file.name,
       uploadTime: new Date(),
       status: 'processing',
       progress: 0,
       metadata: {
-        pageCount: Math.floor(Math.random() * 5) + 1,
+        pageCount: 1, // Will be updated from backend
         language: language === 'hi' ? 'Hindi' : 'English',
         fileSize: `${(file.size / 1024 / 1024).toFixed(2)} MB`
       }
     }
 
-    setFiles(prev => [...prev, result])
+    try {
+      // Upload file to backend
+      const formData = new FormData()
+      formData.append('file', file)
 
-    // Simulate processing with progress updates
-    for (let i = 0; i <= 100; i += 10) {
-      await new Promise(resolve => setTimeout(resolve, 200))
-      setFiles(prev => prev.map(f => f.id === result.id ? {...f, progress: i} : f))
+      const uploadResponse = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.OCR.UPLOAD}`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed: ${uploadResponse.statusText}`)
+      }
+
+      const uploadData = await uploadResponse.json()
+      result.id = uploadData.task_id
+
+      setFiles(prev => [...prev, result])
+
+      // Poll for processing status
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusResponse = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.OCR.STATUS}/${result.id}`)
+          if (!statusResponse.ok) {
+            throw new Error(`Status check failed: ${statusResponse.statusText}`)
+          }
+
+          const statusData = await statusResponse.json()
+          
+          setFiles(prev => prev.map(f => 
+            f.id === result.id 
+              ? { ...f, progress: statusData.progress, status: statusData.status }
+              : f
+          ))
+
+          if (statusData.status === 'completed') {
+            clearInterval(pollInterval)
+            
+            // Get the final result
+            const resultResponse = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.OCR.RESULT}/${result.id}`)
+            if (resultResponse.ok) {
+              const resultData = await resultResponse.json()
+              
+              // Parse entities from backend result
+              const entities: ExtractedEntity[] = []
+              if (resultData.result?.extraction?.entities) {
+                entities.push(...resultData.result.extraction.entities.map((entity: any) => ({
+                  text: entity.text || entity.word || '',
+                  label: entity.label || 'UNKNOWN',
+                  confidence: entity.confidence || 0,
+                  start: entity.start_pos || 0,
+                  end: entity.end_pos || 0
+                })))
+              }
+
+              setFiles(prev => prev.map(f => 
+                f.id === result.id 
+                  ? { 
+                      ...f, 
+                      status: 'completed',
+                      progress: 100,
+                      extractedText: resultData.result?.extraction?.full_text || '',
+                      entities: entities
+                    }
+                  : f
+              ))
+            }
+          } else if (statusData.status === 'error') {
+            clearInterval(pollInterval)
+            setFiles(prev => prev.map(f => 
+              f.id === result.id 
+                ? { ...f, status: 'error' }
+                : f
+            ))
+          }
+        } catch (error) {
+          console.error('Error polling status:', error)
+          clearInterval(pollInterval)
+          setFiles(prev => prev.map(f => 
+            f.id === result.id 
+              ? { ...f, status: 'error' }
+              : f
+          ))
+        }
+      }, 2000) // Poll every 2 seconds
+
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      result.status = 'error'
+      setFiles(prev => [...prev, result])
     }
 
-    // Mock extracted text and entities
-    const mockExtractedText = language === 'hi'
-      ? `नाम: राम कुमार शर्मा
-पता: ग्राम - रामपुर, तहसील - सिवनी, जिला - सिवनी (मध्य प्रदेश)
-आधार संख्या: 1234 5678 9012
-फोन नंबर: +91-9876543210
-दिनांक: 15/03/2024
-आवेदन संख्या: FRA/MP/2024/001234
-
-वन अधिकार दावा विवरण:
-- भूमि का प्रकार: कृषि भूमि
-- क्षेत्रफल: 2.5 हेक्टेयर
-- सर्वे संख्या: 45/2
-- निवास अवधि: 1985 से निरंतर
-- पारंपरिक व्यवसाय: कृषि एवं वन उत्पाद संग्रह`
-      : `Name: Ram Kumar Sharma
-Address: Village - Rampur, Tehsil - Seoni, District - Seoni (Madhya Pradesh)
-Aadhaar Number: 1234 5678 9012
-Phone Number: +91-9876543210
-Date: 15/03/2024
-Application Number: FRA/MP/2024/001234
-
-Forest Rights Claim Details:
-- Land Type: Agricultural Land
-- Area: 2.5 hectares
-- Survey Number: 45/2
-- Period of Residence: Continuously since 1985
-- Traditional Occupation: Agriculture and Forest Produce Collection`
-
-    const mockEntities: ExtractedEntity[] = [
-      { text: 'Ram Kumar Sharma', label: 'PERSON', confidence: 0.98, start: 6, end: 21 },
-      { text: 'Rampur', label: 'LOCATION', confidence: 0.95, start: 40, end: 46 },
-      { text: 'Seoni', label: 'LOCATION', confidence: 0.94, start: 58, end: 63 },
-      { text: 'Madhya Pradesh', label: 'STATE', confidence: 0.96, start: 75, end: 89 },
-      { text: '1234 5678 9012', label: 'AADHAAR', confidence: 0.99, start: 107, end: 121 },
-      { text: '+91-9876543210', label: 'PHONE', confidence: 0.97, start: 140, end: 154 },
-      { text: '15/03/2024', label: 'DATE', confidence: 0.98, start: 162, end: 172 },
-      { text: 'FRA/MP/2024/001234', label: 'APPLICATION_ID', confidence: 0.99, start: 194, end: 212 },
-      { text: '2.5 hectares', label: 'AREA', confidence: 0.95, start: 280, end: 292 },
-      { text: '45/2', label: 'SURVEY_NUMBER', confidence: 0.93, start: 309, end: 313 },
-      { text: '1985', label: 'YEAR', confidence: 0.96, start: 360, end: 364 }
-    ]
-
-    const completedResult: OCRResult = {
-      ...result,
-      status: 'completed',
-      progress: 100,
-      extractedText: mockExtractedText,
-      entities: mockEntities
-    }
-
-    setFiles(prev => prev.map(f => f.id === result.id ? completedResult : f))
-    return completedResult
+    return result
   }, [language])
 
   const handleDrag = (e: React.DragEvent) => {
@@ -152,10 +185,29 @@ Forest Rights Claim Details:
     }
   }
 
-  const deleteFile = (id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id))
-    if (selectedFile?.id === id) {
-      setSelectedFile(null)
+  const deleteFile = async (id: string) => {
+    try {
+      // Call backend API to delete the task
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.OCR.DELETE}/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.statusText}`)
+      }
+
+      // Remove from local state
+      setFiles(prev => prev.filter(f => f.id !== id))
+      if (selectedFile?.id === id) {
+        setSelectedFile(null)
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error)
+      // Still remove from local state even if backend call fails
+      setFiles(prev => prev.filter(f => f.id !== id))
+      if (selectedFile?.id === id) {
+        setSelectedFile(null)
+      }
     }
   }
 
