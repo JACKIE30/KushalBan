@@ -20,6 +20,25 @@ interface ExtractedEntity {
   end: number
 }
 
+interface ClassificationResult {
+  document_type: string
+  confidence_level: string
+  confidence_score: number
+  reasoning: string
+  key_indicators: string[]
+  suggested_actions: string[]
+  document_purpose: string
+  issuing_authority: string
+}
+
+interface ExtractionResult {
+  full_text: string
+  entities: ExtractedEntity[]
+  structured_fields: Record<string, any>
+  extraction_confidence: number
+  total_entities: number
+}
+
 interface OCRResult {
   id: string
   filename: string
@@ -28,6 +47,9 @@ interface OCRResult {
   progress: number
   extractedText?: string
   entities?: ExtractedEntity[]
+  extraction?: ExtractionResult
+  classification?: ClassificationResult
+  processed_at?: string
   metadata?: {
     pageCount: number
     language: string
@@ -119,7 +141,10 @@ export function OCRProcessor() {
                       status: 'completed',
                       progress: 100,
                       extractedText: resultData.result?.extraction?.full_text || '',
-                      entities: entities
+                      entities: entities,
+                      extraction: resultData.result?.extraction,
+                      classification: resultData.result?.classification,
+                      processed_at: resultData.result?.processed_at
                     }
                   : f
               ))
@@ -413,28 +438,165 @@ export function OCRProcessor() {
                 </p>
               </div>
             ) : (
-              <Tabs defaultValue="text" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="text">{language === 'hi' ? 'निकाला गया टेक्स्ट' : 'Extracted Text'}</TabsTrigger>
-                  <TabsTrigger value="entities">{language === 'hi' ? 'नामित इकाइयाँ' : 'Named Entities'}</TabsTrigger>
+              <Tabs defaultValue="extraction" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="extraction">{language === 'hi' ? 'निष्कर्षण' : 'Extraction'}</TabsTrigger>
+                  <TabsTrigger value="classification">{language === 'hi' ? 'वर्गीकरण' : 'Classification'}</TabsTrigger>
+                  <TabsTrigger value="entities">{language === 'hi' ? 'इकाइयाँ' : 'Entities'}</TabsTrigger>
+                  <TabsTrigger value="json">{language === 'hi' ? 'पूर्ण JSON' : 'Full JSON'}</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="text" className="mt-4">
+                <TabsContent value="extraction" className="mt-4">
                   <Card>
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-medium flex items-center justify-between">
-                        {language === 'hi' ? 'ओसीआर आउटपुट' : 'OCR Output'}
-                        <Button variant="outline" size="sm">
-                          <Download className="w-4 h-4 mr-2" />
-                          {language === 'hi' ? 'डाउनलोड' : 'Download'}
-                        </Button>
+                        {language === 'hi' ? 'निष्कर्षण परिणाम' : 'Extraction Results'}
+                        <Badge variant="outline">
+                          {selectedFile.extraction?.extraction_confidence ? 
+                            `${Math.round(selectedFile.extraction.extraction_confidence)}%` : 'N/A'
+                          }
+                        </Badge>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <ScrollArea className="h-64">
-                        <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono bg-gray-50 p-3 rounded border">
-                          {selectedFile.extractedText}
-                        </pre>
+                      <ScrollArea className="h-80">
+                        <div className="space-y-4">
+                          {/* Full Text */}
+                          <div>
+                            <h5 className="font-medium text-sm mb-2">{language === 'hi' ? 'निकाला गया टेक्स्ट' : 'Extracted Text'}</h5>
+                            <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono bg-gray-50 p-3 rounded border max-h-40 overflow-y-auto">
+                              {selectedFile.extraction?.full_text || selectedFile.extractedText || 'No text extracted'}
+                            </pre>
+                          </div>
+                          
+                          {/* Structured Fields */}
+                          {selectedFile.extraction?.structured_fields && (
+                            <div>
+                              <h5 className="font-medium text-sm mb-2">{language === 'hi' ? 'संरचित फील्ड' : 'Structured Fields'}</h5>
+                              <div className="grid grid-cols-1 gap-2">
+                                {Object.entries(selectedFile.extraction.structured_fields).map(([key, value]) => (
+                                  <div key={key} className="flex items-center justify-between p-2 bg-blue-50 rounded border">
+                                    <span className="text-xs font-medium text-blue-800">{key.replace(/_/g, ' ').toUpperCase()}</span>
+                                    <span className="text-xs text-blue-900 bg-white px-2 py-1 rounded">{String(value)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Statistics */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <Card className="p-3">
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-green-600">
+                                  {selectedFile.extraction?.total_entities || selectedFile.entities?.length || 0}
+                                </div>
+                                <div className="text-xs text-gray-600">{language === 'hi' ? 'कुल इकाइयाँ' : 'Total Entities'}</div>
+                              </div>
+                            </Card>
+                            <Card className="p-3">
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-blue-600">
+                                  {selectedFile.extraction?.extraction_confidence ? 
+                                    `${Math.round(selectedFile.extraction.extraction_confidence)}%` : 'N/A'
+                                  }
+                                </div>
+                                <div className="text-xs text-gray-600">{language === 'hi' ? 'विश्वसनीयता' : 'Confidence'}</div>
+                              </div>
+                            </Card>
+                          </div>
+                        </div>
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="classification" className="mt-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center justify-between">
+                        {language === 'hi' ? 'दस्तावेज़ वर्गीकरण' : 'Document Classification'}
+                        <Badge variant="outline" className={
+                          selectedFile.classification?.confidence_level === 'HIGH' ? 'bg-green-50 text-green-700 border-green-200' :
+                          selectedFile.classification?.confidence_level === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                          'bg-red-50 text-red-700 border-red-200'
+                        }>
+                          {selectedFile.classification?.confidence_level || 'UNKNOWN'}
+                        </Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea className="h-80">
+                        {selectedFile.classification ? (
+                          <div className="space-y-4">
+                            {/* Document Type */}
+                            <div className="p-3 bg-blue-50 rounded border">
+                              <h5 className="font-medium text-sm text-blue-800 mb-1">{language === 'hi' ? 'दस्तावेज़ प्रकार' : 'Document Type'}</h5>
+                              <p className="text-lg font-bold text-blue-900">{selectedFile.classification.document_type}</p>
+                              <p className="text-sm text-blue-700 mt-1">
+                                {language === 'hi' ? 'विश्वसनीयता स्कोर' : 'Confidence Score'}: {Math.round(selectedFile.classification.confidence_score * 100)}%
+                              </p>
+                            </div>
+
+                            {/* Purpose and Authority */}
+                            <div className="grid grid-cols-1 gap-3">
+                              {selectedFile.classification.document_purpose && (
+                                <div className="p-3 bg-gray-50 rounded border">
+                                  <h5 className="font-medium text-sm text-gray-800 mb-1">{language === 'hi' ? 'उद्देश्य' : 'Purpose'}</h5>
+                                  <p className="text-sm text-gray-700">{selectedFile.classification.document_purpose}</p>
+                                </div>
+                              )}
+                              {selectedFile.classification.issuing_authority && (
+                                <div className="p-3 bg-gray-50 rounded border">
+                                  <h5 className="font-medium text-sm text-gray-800 mb-1">{language === 'hi' ? 'जारीकर्ता प्राधिकरण' : 'Issuing Authority'}</h5>
+                                  <p className="text-sm text-gray-700">{selectedFile.classification.issuing_authority}</p>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Reasoning */}
+                            {selectedFile.classification.reasoning && (
+                              <div className="p-3 bg-green-50 rounded border">
+                                <h5 className="font-medium text-sm text-green-800 mb-1">{language === 'hi' ? 'तर्क' : 'Reasoning'}</h5>
+                                <p className="text-sm text-green-700">{selectedFile.classification.reasoning}</p>
+                              </div>
+                            )}
+
+                            {/* Key Indicators */}
+                            {selectedFile.classification.key_indicators && selectedFile.classification.key_indicators.length > 0 && (
+                              <div>
+                                <h5 className="font-medium text-sm mb-2">{language === 'hi' ? 'मुख्य संकेतक' : 'Key Indicators'}</h5>
+                                <div className="space-y-1">
+                                  {selectedFile.classification.key_indicators.map((indicator, index) => (
+                                    <Badge key={index} variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 mr-2 mb-1">
+                                      {indicator}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Suggested Actions */}
+                            {selectedFile.classification.suggested_actions && selectedFile.classification.suggested_actions.length > 0 && (
+                              <div>
+                                <h5 className="font-medium text-sm mb-2">{language === 'hi' ? 'सुझाए गए कार्य' : 'Suggested Actions'}</h5>
+                                <div className="space-y-2">
+                                  {selectedFile.classification.suggested_actions.map((action, index) => (
+                                    <div key={index} className="flex items-start space-x-2 p-2 bg-orange-50 rounded border">
+                                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
+                                      <p className="text-sm text-orange-800">{action}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8 text-gray-500">
+                            <AlertCircle className="mx-auto h-8 w-8 mb-2" />
+                            <p className="text-sm">{language === 'hi' ? 'कोई वर्गीकरण डेटा उपलब्ध नहीं' : 'No classification data available'}</p>
+                          </div>
+                        )}
                       </ScrollArea>
                     </CardContent>
                   </Card>
@@ -451,33 +613,99 @@ export function OCRProcessor() {
                       </Badge>
                     </div>
 
-                    <ScrollArea className="h-64">
+                    <ScrollArea className="h-80">
                       <div className="space-y-3">
-                        {selectedFile.entities?.map((entity, index) => (
-                          <Card key={index} className="border border-gray-200">
-                            <CardContent className="p-3">
-                              <div className="flex items-start justify-between space-x-3">
-                                <div className="flex-1">
-                                  <div className="flex items-center space-x-2 mb-2">
-                                    <Badge variant="outline" className={getEntityColor(entity.label)}>
-                                      {getEntityIcon(entity.label)}
-                                      <span className="ml-1 text-xs font-medium">{entity.label}</span>
-                                    </Badge>
-                                    <Badge variant="secondary" className="text-xs">
-                                      {Math.round(entity.confidence * 100)}%
-                                    </Badge>
+                        {selectedFile.entities && selectedFile.entities.length > 0 ? (
+                          selectedFile.entities.map((entity, index) => (
+                            <Card key={index} className="border border-gray-200">
+                              <CardContent className="p-3">
+                                <div className="flex items-start justify-between space-x-3">
+                                  <div className="flex-1">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Badge variant="outline" className={getEntityColor(entity.label)}>
+                                        {getEntityIcon(entity.label)}
+                                        <span className="ml-1 text-xs font-medium">{entity.label}</span>
+                                      </Badge>
+                                      <Badge variant="secondary" className="text-xs">
+                                        {Math.round(entity.confidence * 100)}%
+                                      </Badge>
+                                    </div>
+                                    <p className="font-medium text-sm text-gray-900 bg-yellow-50 px-2 py-1 rounded border border-yellow-200">
+                                      "{entity.text}"
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Position: {entity.start} - {entity.end}
+                                    </p>
                                   </div>
-                                  <p className="font-medium text-sm text-gray-900 bg-yellow-50 px-2 py-1 rounded border border-yellow-200">
-                                    "{entity.text}"
-                                  </p>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                              </CardContent>
+                            </Card>
+                          ))
+                        ) : (
+                          <div className="text-center py-8 text-gray-500">
+                            <Hash className="mx-auto h-8 w-8 mb-2" />
+                            <p className="text-sm">{language === 'hi' ? 'कोई इकाइयाँ नहीं मिलीं' : 'No entities found'}</p>
+                          </div>
+                        )}
                       </div>
                     </ScrollArea>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="json" className="mt-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center justify-between">
+                        {language === 'hi' ? 'पूर्ण JSON परिणाम' : 'Complete JSON Results'}
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm" onClick={() => {
+                            const jsonData = {
+                              extraction: selectedFile.extraction,
+                              classification: selectedFile.classification,
+                              entities: selectedFile.entities,
+                              processed_at: selectedFile.processed_at,
+                              filename: selectedFile.filename
+                            }
+                            navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2))
+                          }}>
+                            {language === 'hi' ? 'कॉपी करें' : 'Copy'}
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => {
+                            const jsonData = {
+                              extraction: selectedFile.extraction,
+                              classification: selectedFile.classification,
+                              entities: selectedFile.entities,
+                              processed_at: selectedFile.processed_at,
+                              filename: selectedFile.filename
+                            }
+                            const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' })
+                            const url = URL.createObjectURL(blob)
+                            const a = document.createElement('a')
+                            a.href = url
+                            a.download = `${selectedFile.filename}_results.json`
+                            a.click()
+                            URL.revokeObjectURL(url)
+                          }}>
+                            <Download className="w-4 h-4 mr-2" />
+                            {language === 'hi' ? 'डाउनलोड' : 'Download'}
+                          </Button>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ScrollArea className="h-80">
+                        <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono bg-gray-50 p-4 rounded border overflow-x-auto">
+                          {JSON.stringify({
+                            extraction: selectedFile.extraction,
+                            classification: selectedFile.classification,
+                            entities: selectedFile.entities,
+                            processed_at: selectedFile.processed_at,
+                            filename: selectedFile.filename
+                          }, null, 2)}
+                        </pre>
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
                 </TabsContent>
               </Tabs>
             )}

@@ -1,0 +1,33 @@
+{
+  "document_type": "Forest Rights Title Deed / Certificate (under FRA, 2006)",
+  "confidence_level": "HIGH",
+  "confidence_score": 98.0,
+  "reasoning": "The document explicitly references the 'Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Rules, 2008' and the 'Forest Rights Act'. Key terms like 'TITLE Holder(s)', 'heritable', 'khasra/compartment', 'land', 'occupation', 'Bighas', 'Forest Dweller', 'Gram Sabha', and 'Forest Officer' are all directly related to the process of recognizing and vesting forest rights under this specific Indian legislation. The mention of 'Annexure-I', specific names, and geographic locations (Chamba, Dalhousie, Himachal Pradesh) further confirm its nature as an official form or certificate related to these rights.",
+  "key_indicators": [
+    "Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Rules, 2008",
+    "Forest Rights Act",
+    "TITLE Holder(s)",
+    "heritable",
+    "khasra/compartment",
+    "land",
+    "occupation",
+    "Bighas",
+    "Forest Dweller",
+    "Gram Sabha",
+    "Forest Officer",
+    "Annexure-I",
+    "Chamba, H.P.",
+    "Dalhousie"
+  ],
+  "suggested_actions": [
+    "Verify the accuracy of the OCR text, especially names, land descriptions (khasra, bighas), and legal sections.",
+    "Extract complete details of the title holder(s) and their dependents.",
+    "Record the specific land parcel details (khasra/compartment, area, village) associated with the recognized rights.",
+    "Confirm the issuing date and the specific authority/committee that approved the rights.",
+    "Cross-reference with existing records of the Sub-Divisional Level Committee (SDLC) or District Level Committee (DLC) for Forest Rights Act implementation."
+  ],
+  "document_purpose": "To formally recognize, record, and vest individual or community forest rights to eligible Forest Dwelling Scheduled Tribes and Other Traditional Forest Dwellers over forest land, as prescribed by 'The Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, 2006' and its associated Rules of 2008. It serves as an official proof of heritable, but not transferable, occupancy and rights.",
+  "issuing_authority": "Government of India (through designated authorities under the Forest Rights Act, e.g., Sub-Divisional Level Committee (SDLC), District Level Committee (DLC), or Forest Department, often based on Gram Sabha resolutions).",
+  "processing_timestamp": "2025-09-14T01:21:43.705514",
+  "version": "1.0"
+}
