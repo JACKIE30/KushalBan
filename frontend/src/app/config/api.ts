@@ -1,6 +1,17 @@
 // API Configuration for BanRakshak Frontend
+const getBaseUrl = () => {
+  // Check for environment variable first
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl) {
+    return envUrl;
+  }
+  
+  // Fallback to localhost
+  return 'http://localhost:8000';
+};
+
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  BASE_URL: getBaseUrl(),
   ENDPOINTS: {
     OCR: {
       UPLOAD: '/api/ocr/upload',
