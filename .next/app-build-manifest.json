@@ -1,0 +1,37 @@
+{
+  "pages": {
+    "/page": [
+      "static/chunks/9e883_next_dist_6ea86932._.js",
+      "static/chunks/frontend_src_app_favicon_ico_mjs_fcc3eca7._.js",
+      "static/chunks/[root-of-the-server]__4d769cbc._.css",
+      "static/chunks/frontend_src_app_layout_tsx_c11d305c._.js",
+      "static/chunks/9e883_next_dist_client_components_builtin_global-error_21b5a207.js",
+      "static/chunks/frontend_components_249121f7._.js",
+      "static/chunks/frontend_src_app_pages_LandingPage_tsx_06f7b044._.js",
+      "static/chunks/frontend_src_app_pages_Dashboard_tsx_cfa2833e._.js",
+      "static/chunks/frontend_src_app_pages_ClaimSubmission_tsx_83b1e8ef._.js",
+      "static/chunks/frontend_src_app_pages_AIScrutinyPanel_tsx_276741e3._.js",
+      "static/chunks/frontend_src_app_pages_73820593._.js",
+      "static/chunks/frontend_src_app_f4796429._.js",
+      "static/chunks/9e883_lucide-react_dist_esm_089064c1._.js",
+      "static/chunks/9e883_tailwind-merge_dist_bundle-mjs_mjs_48eccb00._.js",
+      "static/chunks/9e883_recharts_es6_9994f56a._.js",
+      "static/chunks/9e883_proj4_0e90cc3d._.js",
+      "static/chunks/9e883_leaflet_dist_leaflet-src_b8cc0c06.js",
+      "static/chunks/9e883_@radix-ui_3c9afbf1._.js",
+      "static/chunks/9e883_@floating-ui_b44cf1b6._.js",
+      "static/chunks/9e883_46b1ae79._.js",
+      "static/chunks/9e883_126b7048._.css",
+      "static/chunks/frontend_src_app_page_tsx_21b5a207._.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_51deae60._.js",
+      "static/chunks/9e883_next_dist_compiled_react-dom_33d456f8._.js",
+      "static/chunks/9e883_next_dist_compiled_next-devtools_index_e18dabda.js",
+      "static/chunks/9e883_next_dist_compiled_649610a4._.js",
+      "static/chunks/9e883_next_dist_client_af6cb9d5._.js",
+      "static/chunks/9e883_next_dist_0e511d54._.js",
+      "static/chunks/9e883_@swc_helpers_cjs_652634af._.js",
+      "static/chunks/frontend_a0ff3932._.js",
+      "static/chunks/turbopack-frontend_a50d7e93._.js"
+    ]
+  }
+}
