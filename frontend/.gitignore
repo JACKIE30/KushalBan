@@ -1,0 +1,5 @@
+frontend/public/assets/*.geojson
+frontend/public/assets/*.geojson
+
+node_modules/
+
