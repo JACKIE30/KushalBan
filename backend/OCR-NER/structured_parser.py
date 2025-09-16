@@ -104,20 +104,35 @@ class StructuredDocumentParser:
 
     def _find_tesseract(self):
         """Try to find Tesseract installation automatically"""
+        import shutil
+        
+        # First try to find tesseract in PATH
+        tesseract_path = shutil.which('tesseract')
+        if tesseract_path:
+            pytesseract.pytesseract.tesseract_cmd = tesseract_path
+            print(f"✅ Found Tesseract at: {tesseract_path}")
+            return
+        
+        # Fallback to common installation paths
         possible_paths = [
             r"C:\Program Files\Tesseract-OCR\tesseract.exe",
             r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
             "/usr/bin/tesseract",
-            "/usr/local/bin/tesseract"
+            "/usr/local/bin/tesseract",
+            "/opt/homebrew/bin/tesseract",  # Common macOS Homebrew path
+            "/usr/local/Cellar/tesseract/*/bin/tesseract"  # Older Homebrew path
         ]
         
         for path in possible_paths:
             try:
                 if os.path.exists(path):
                     pytesseract.pytesseract.tesseract_cmd = path
+                    print(f"✅ Found Tesseract at: {path}")
                     return
             except:
                 continue
+        
+        print("⚠️ Could not find Tesseract automatically. Make sure it's installed and in PATH.")
     
     def preprocess_image_advanced(self, image_path: str) -> List[np.ndarray]:
         """Advanced image preprocessing with multiple variants for better OCR"""

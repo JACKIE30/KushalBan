@@ -46,7 +46,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Frontend URLs
+    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"],  # Frontend URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -85,7 +85,7 @@ classifier = None
 
 if ocr_modules_available and StructuredDocumentParser and DocumentClassifierAgent:
     try:
-        # Note: You may need to adjust the tesseract path for your system
+        
         parser = StructuredDocumentParser()
         classifier = DocumentClassifierAgent()
         print("✅ OCR components initialized successfully")

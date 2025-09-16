@@ -20,6 +20,17 @@ interface ExtractedEntity {
   end: number
 }
 
+interface DocumentClassification {
+  document_type: string
+  confidence_level: string
+  confidence_score: number
+  reasoning: string
+  key_indicators: string[]
+  suggested_actions: string[]
+  document_purpose: string
+  issuing_authority: string
+}
+
 interface OCRResult {
   id: string
   filename: string
@@ -28,6 +39,8 @@ interface OCRResult {
   progress: number
   extractedText?: string
   entities?: ExtractedEntity[]
+  extractedFields?: Record<string, string>
+  classification?: DocumentClassification
   metadata?: {
     pageCount: number
     language: string
@@ -58,11 +71,19 @@ export function OCRProcessor() {
     }
 
     try {
+      // Check if API configuration is available
+      if (!API_CONFIG.BASE_URL) {
+        throw new Error('API configuration is not available. Please check your environment variables.')
+      }
+
       // Upload file to backend
       const formData = new FormData()
       formData.append('file', file)
 
-      const uploadResponse = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.OCR.UPLOAD}`, {
+      const uploadUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.OCR.UPLOAD}`
+      console.log('Uploading to:', uploadUrl) // Debug log
+
+      const uploadResponse = await fetch(uploadUrl, {
         method: 'POST',
         body: formData,
       })
@@ -119,7 +140,9 @@ export function OCRProcessor() {
                       status: 'completed',
                       progress: 100,
                       extractedText: resultData.result?.extraction?.full_text || '',
-                      entities: entities
+                      entities: entities,
+                      extractedFields: resultData.result?.extraction?.extracted_fields || {},
+                      classification: resultData.result?.classification || null
                     }
                   : f
               ))
@@ -413,31 +436,146 @@ export function OCRProcessor() {
                 </p>
               </div>
             ) : (
-              <Tabs defaultValue="text" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="text">{language === 'hi' ? 'निकाला गया टेक्स्ट' : 'Extracted Text'}</TabsTrigger>
-                  <TabsTrigger value="entities">{language === 'hi' ? 'नामित इकाइयाँ' : 'Named Entities'}</TabsTrigger>
-                </TabsList>
+              <div className="space-y-4">
+                {/* Document Summary Card */}
+                <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                  <CardContent className="pt-4">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="flex items-center justify-center mb-1">
+                          <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
+                          <span className="text-xs text-gray-600">
+                            {language === 'hi' ? 'स्थिति' : 'Status'}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-green-700">
+                          {language === 'hi' ? 'पूर्ण' : 'Completed'}
+                        </p>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-center mb-1">
+                          <Eye className="w-4 h-4 text-blue-500 mr-1" />
+                          <span className="text-xs text-gray-600">
+                            {language === 'hi' ? 'फ़ील्ड' : 'Fields'}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-blue-700">
+                          {selectedFile.extractedFields ? Object.keys(selectedFile.extractedFields).length : 0}
+                        </p>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-center mb-1">
+                          <Hash className="w-4 h-4 text-purple-500 mr-1" />
+                          <span className="text-xs text-gray-600">
+                            {language === 'hi' ? 'इकाइयाँ' : 'Entities'}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-purple-700">
+                          {selectedFile.entities?.length || 0}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Tabs defaultValue="text" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="text">{language === 'hi' ? 'निकाला गया टेक्स्ट' : 'Extracted Text'}</TabsTrigger>
+                    <TabsTrigger value="entities">{language === 'hi' ? 'नामित इकाइयाँ' : 'Named Entities'}</TabsTrigger>
+                  </TabsList>
 
                 <TabsContent value="text" className="mt-4">
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-medium flex items-center justify-between">
-                        {language === 'hi' ? 'ओसीआर आउटपुट' : 'OCR Output'}
-                        <Button variant="outline" size="sm">
-                          <Download className="w-4 h-4 mr-2" />
-                          {language === 'hi' ? 'डाउनलोड' : 'Download'}
-                        </Button>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ScrollArea className="h-64">
-                        <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono bg-gray-50 p-3 rounded border">
-                          {selectedFile.extractedText}
-                        </pre>
-                      </ScrollArea>
-                    </CardContent>
-                  </Card>
+                  <div className="space-y-4">
+                    {/* Document Classification */}
+                    {selectedFile.classification && (
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm font-medium flex items-center">
+                            <File className="w-4 h-4 mr-2" />
+                            {language === 'hi' ? 'दस्तावेज़ वर्गीकरण' : 'Document Classification'}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">
+                                {language === 'hi' ? 'दस्तावेज़ प्रकार' : 'Document Type'}
+                              </p>
+                              <Badge variant="outline" className="font-medium">
+                                {selectedFile.classification.document_type}
+                              </Badge>
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-500 mb-1">
+                                {language === 'hi' ? 'विश्वसनीयता' : 'Confidence'}
+                              </p>
+                              <Badge 
+                                variant={selectedFile.classification.confidence_level === 'HIGH' ? 'default' : 
+                                        selectedFile.classification.confidence_level === 'MEDIUM' ? 'secondary' : 'outline'}
+                              >
+                                {selectedFile.classification.confidence_score}% ({selectedFile.classification.confidence_level})
+                              </Badge>
+                            </div>
+                          </div>
+                          {selectedFile.classification.reasoning && (
+                            <div className="mt-3">
+                              <p className="text-xs text-gray-500 mb-1">
+                                {language === 'hi' ? 'तर्क' : 'Reasoning'}
+                              </p>
+                              <p className="text-sm text-gray-700">{selectedFile.classification.reasoning}</p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Structured Fields */}
+                    {selectedFile.extractedFields && Object.keys(selectedFile.extractedFields).length > 0 && (
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm font-medium flex items-center">
+                            <Hash className="w-4 h-4 mr-2" />
+                            {language === 'hi' ? 'निकाले गए फ़ील्ड' : 'Extracted Fields'}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            {Object.entries(selectedFile.extractedFields).map(([key, value]) => (
+                              <div key={key} className="border-l-4 border-blue-200 pl-3">
+                                <p className="text-xs text-gray-500 mb-1 capitalize">
+                                  {key.replace(/_/g, ' ')}
+                                </p>
+                                <p className="text-sm text-gray-800 font-medium">{value as string}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Raw OCR Text */}
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium flex items-center justify-between">
+                          <span className="flex items-center">
+                            <Eye className="w-4 h-4 mr-2" />
+                            {language === 'hi' ? 'पूर्ण पाठ (OCR)' : 'Full Text (OCR)'}
+                          </span>
+                          <Button variant="outline" size="sm">
+                            <Download className="w-4 h-4 mr-2" />
+                            {language === 'hi' ? 'डाउनलोड' : 'Download'}
+                          </Button>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ScrollArea className="h-64">
+                          <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono bg-gray-50 p-3 rounded border leading-relaxed">
+                            {selectedFile.extractedText}
+                          </pre>
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="entities" className="mt-4">
@@ -480,6 +618,7 @@ export function OCRProcessor() {
                   </div>
                 </TabsContent>
               </Tabs>
+              </div>
             )}
           </CardContent>
         </Card>
