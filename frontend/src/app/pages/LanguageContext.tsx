@@ -23,6 +23,7 @@ const translations = {
     'nav.contact': 'Contact',
     'nav.signin': 'Sign In',
     'nav.accessPortal': 'Access Portal',
+    'nav.adminLogin': 'Admin Login',
     'nav.learnMore': 'Learn More',
     'nav.backToHome': 'Back to Home',
 
@@ -316,6 +317,7 @@ const translations = {
     'nav.contact': 'संपर्क',
     'nav.signin': 'साइन इन',
     'nav.accessPortal': 'पोर्टल तक पहुंच',
+    'nav.adminLogin': 'व्यवस्थापक लॉगिन',
     'nav.learnMore': 'और जानें',
     'nav.backToHome': 'होम पर वापस जाएं',
 

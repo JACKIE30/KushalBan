@@ -13,11 +13,13 @@ import { Layout } from './pages/Layout';
 import { LanguageProvider } from './pages/LanguageContext';
 import { AuthProvider, useAuth } from './pages/AuthContext';
 import FRAAtlasMap from './pages/fra-atlas';
+import { AdminDashboard } from './pages/AdminDashboard';
 
 type Page =
   | 'landing'
   | 'auth'
   | 'dashboard'
+  | 'admin-dashboard'
   | 'submit-claim'
   | 'claims'
   | 'allotments'
@@ -30,6 +32,7 @@ const pathToPage: Record<string, Page> = {
   '/': 'landing',
   '/auth': 'auth',
   '/dashboard': 'dashboard',
+  '/admin': 'admin-dashboard',
   '/dashboard/submit-claim': 'submit-claim',
   '/dashboard/claims': 'claims',
   '/dashboard/allotments': 'allotments',
@@ -43,6 +46,7 @@ const pageToPath: Record<Page, string> = {
   landing: '/',
   auth: '/auth',
   dashboard: '/dashboard',
+  'admin-dashboard': '/admin',
   'submit-claim': '/dashboard/submit-claim',
   claims: '/dashboard/claims',
   allotments: '/dashboard/allotments',
@@ -62,7 +66,7 @@ function getPageFromPath(path: string): Page {
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState<Page>('landing');
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   // Initialize from URL
   useEffect(() => {
@@ -83,6 +87,13 @@ function AppContent() {
     window.history.pushState({}, '', pageToPath[page]);
   };
 
+  // Redirect admin users to admin dashboard when they login
+  useEffect(() => {
+    if (isAuthenticated && user && user.role === 'admin' && currentPage === 'dashboard') {
+      handlePageChange('admin-dashboard');
+    }
+  }, [isAuthenticated, user, currentPage]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-gray-50/30 to-green-50/30 flex items-center justify-center">
@@ -96,16 +107,27 @@ function AppContent() {
 
   // Landing & Auth
   if (currentPage === 'landing') {
-    return <LandingPage onGetStarted={() => handlePageChange('auth')} />;
+    return <LandingPage 
+      onGetStarted={() => handlePageChange('auth')} 
+      onAdminLogin={() => handlePageChange('auth')}
+    />;
   }
 
   if (currentPage === 'auth') {
-    return <LoginSignup onSuccess={() => handlePageChange('dashboard')} />;
+    return <LoginSignup onSuccess={() => {
+      // We'll handle the redirection after auth context updates
+      handlePageChange('dashboard');
+    }} />;
   }
 
   // Redirect unauthenticated users
   if (!isAuthenticated) {
     return <LoginSignup onSuccess={() => handlePageChange('dashboard')} />;
+  }
+
+  // Admin Dashboard - handle separately with its own layout
+  if (currentPage === 'admin-dashboard') {
+    return <AdminDashboard />;
   }
 
   // Dashboard pages mapping

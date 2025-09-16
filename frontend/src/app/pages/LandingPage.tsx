@@ -17,7 +17,8 @@ import {
   Menu,
   Phone,
   Mail,
-  Building2
+  Building2,
+  Settings
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';
@@ -28,9 +29,10 @@ import { useLanguage } from './LanguageContext';
 
 interface LandingPageProps {
   onGetStarted?: () => void;
+  onAdminLogin?: () => void;
 }
 
-export function LandingPage({ onGetStarted }: LandingPageProps) {
+export function LandingPage({ onGetStarted, onAdminLogin }: LandingPageProps) {
   const { t } = useLanguage();
 
   const features = [
@@ -139,6 +141,14 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 {t('nav.contact')}
               </Button>
               <LanguageSwitcher />
+              <Button
+                variant="outline"
+                className="border-gray-300 hover:border-green-500 hover:bg-green-50 text-gray-700 hover:text-green-700 px-4 py-2 transition-all duration-300 flex items-center gap-2"
+                onClick={onAdminLogin}
+              >
+                <Settings className="w-4 h-4" />
+                {t('nav.adminLogin')}
+              </Button>
               <Button
                 className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 shadow-md hover:shadow-lg transition-all duration-300"
                 onClick={onGetStarted}
