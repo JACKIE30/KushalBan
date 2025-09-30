@@ -1,0 +1,88 @@
+{
+  "extraction": {
+    "document_title": "ANNEXURE-It for LAND and on UNDER or 00-92-00 Padhrotu, Village behalf Smit. 1. 1. transferable Sh, Sh. Santosh Payare of Nek Lakkarmandi, OCCUPATION Bighas the Ram Kumari government Lal under S/O S/O W/O Sh. P.O. Sub-section Sh. Payare Sh. Shanaty & of Tehsil Nek Himachal Lai Ram (4) _ of | i",
+    "extracted_fields": {
+      "dependents": "harisukh",
+      "gram_panchayat": "i i",
+      "holder_name": "Harisukh",
+      "village_gram": "Harisukh",
+      "district": "Ram Dyal H.P. Harisukh Of Forest",
+      "caste_category": "as",
+      "boundaries": "recognition jai sh, ram dyal h.p. harisukh of forest a i i"
+    },
+    "ner_info": {
+      "persons": [
+        "Gram",
+        "OCCUPATION Bighas",
+        "Lal under S/O S/O W/O Sh",
+        "Tribes",
+        "Khasra Dalhousie",
+        "/0 Chamba",
+        "Makholl sh",
+        "Ram Dyal",
+        "Sabha",
+        "Lakkarmandi",
+        "Chamba Ashok",
+        "Tatima",
+        "jana",
+        "Makholi Dweller",
+        "Ram",
+        "Rajeev Kumar",
+        "Vichiter Singh",
+        "Makholi Ram"
+      ],
+      "locations": [
+        "Nek Lakkarmandi",
+        "Kumar"
+      ],
+      "organizations": [
+        "Ne",
+        "TITLE Holder(s",
+        "LAND",
+        "Santosh Payare",
+        "Shanaty &",
+        "Tehsil Nek",
+        "District Owellers of Sh",
+        "Village/Gram Name of Dependents",
+        "Traditional Devi W/O Forest Sh",
+        "Rajan Kumar",
+        "Chhanga Ram"
+      ]
+    },
+    "full_text": "6 j1 4 \"| Ne | | Gram ‘ Name Name(s) We, This Panchayat: of of the title TITLE Holder(s) undersigned, is heritable, FOR oF Forest FOREST but hereby, rights not ANNEXURE-It for LAND and on UNDER or 00-92-00 Padhrotu, Village behalf Smit. 1. 1. transferable Sh, Sh. Santosh Payare of Nek Lakkarmandi, OCCUPATION Bighas the Ram Kumari government Lal under S/O S/O W/O Sh. P.O. Sub-section Sh. Payare Sh. Shanaty & of Tehsil Nek Himachal Lai Ram (4) _ of | i\n1 \"71 Pradesh Section _ 11 1] | | (See Description i Tebsil/Tatuka: Ba 4 Rule affix of the 8{h) our Act of of signatures spouse): the boundaries Scheduled to confirm by Tribes prominent the and above Other Traditional forest Khasra Dalhousie, 2. 2. right. Sh, Sh. Deputy Forest No, Harisukh Makholl 12/2 District Owellers of Sh. Ram $/0 Chamba, Makholl sh. S/O (Recognition Jai Sh, Ram Dyal H.P. Harisukh of Forest a i i\n(a | Village/Gram Name of Dependents: including Sabha: etn: khasra/compartment Rights} Rules, {As 2008] Chamba, Lakkarmandi. Sh. shown Chamba Ashok in Kumar attached (Mohal 5/0 N Sh. Cha.nb R.F.Kalatop) Tatima) Harisukh\n19 | Whether Scheduled Tribe or Other Other ‘Smt. jana Traditional Devi W/O Forest Sh. Makholi Dweller, Ram,\nj. Traditional Forest Dwelier: . Rajeev Kumar, Rajan Kumar, Vichiter Singh, _\nRahul, Chhanga Ram 5/0 Makholi Ram {As\n_ er Documents\n",
+    "ocr_confidence": 82.7467248908297,
+    "extraction_variants": 4,
+    "processing_status": "success"
+  },
+  "classification": {
+    "document_type": "Forest Rights Claim / Recognition Record (Individual Forest Rights)",
+    "confidence_level": "HIGH",
+    "confidence_score": 98.0,
+    "reasoning": "The document explicitly references the 'Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, Rules, 2008'. It details 'Forest rights' for 'LAND and OCCUPATION Bighas', indicating these rights are 'heritable' but 'not transferable'. It lists 'Title Holder(s)' and their dependents, explicitly identifying them as 'Traditional Forest Dweller'. Key administrative bodies like 'Panchayat' and 'Gram Sabha' are mentioned, which are central to the implementation of the Forest Rights Act (FRA). The format includes specific fields for land parcels (Khasra No.), geographical locations (Dalhousie, Chamba, Himachal Pradesh), and applicant details, characteristic of a form or record used in the process of recognizing Individual Forest Rights (IFR) under the FRA.",
+    "key_indicators": [
+      "Forest FOREST rights",
+      "ANNEXURE-It for LAND",
+      "OCCUPATION Bighas",
+      "heritable, ... not transferable",
+      "Scheduled Tribes and Other Traditional forest Owellers (Recognition of Forest Rights) Act, Rules, 2008",
+      "Panchayat",
+      "Gram Sabha",
+      "Title Holder(s)",
+      "Traditional Forest Dweller",
+      "Khasra No",
+      "Tehsil Dalhousie, District Chamba, H.P."
+    ],
+    "suggested_actions": [
+      "Verify the authenticity and current status of this record with the respective Gram Sabha, Sub-Divisional Level Committee (SDLC), or District Level Committee (DLC) in Chamba District, Himachal Pradesh.",
+      "Cross-reference the listed individuals and land parcels (Khasra No.) with official records of Forest Rights Certificates issued under the FRA.",
+      "Identify if this document is an application form, a verification report, or part of a final title deed/certificate.",
+      "Examine any 'attached documents' as indicated in the text, which may provide further context or evidence."
+    ],
+    "document_purpose": "To serve as an application, verification record, or a component of the documentation process for recognizing and conferring Individual Forest Rights (IFR) to Scheduled Tribes and Other Traditional Forest Dwellers for forest land occupied by them, in accordance with the provisions of The Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act, 2006.",
+    "issuing_authority": "The document is likely processed and verified at multiple levels, starting with the Gram Sabha (Village Council/Assembly) and local Panchayat. It would then be reviewed by the Sub-Divisional Level Committee (SDLC) and finally approved and rights conferred by the District Level Committee (DLC) for Chamba District, Himachal Pradesh. 'Deputy Forest' is mentioned, indicating involvement of the Forest Department in the verification process."
+  },
+  "image_path": "F:\\ML + Projects\\SIH\\Screenshot 2025-09-02 000304.png",
+  "output_directory": "document_analysis_20250902_120359",
+  "processing_timestamp": "2025-09-02T12:04:26.966677",
+  "version": "1.0"
+}
