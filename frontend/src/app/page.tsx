@@ -14,6 +14,7 @@ import { LanguageProvider } from './pages/LanguageContext';
 import { AuthProvider, useAuth } from './pages/AuthContext';
 import FRAAtlasMap from './pages/fra-atlas';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { DSSPage } from './pages/DSSPage';
 
 type Page =
   | 'landing'
@@ -25,7 +26,8 @@ type Page =
   | 'allotments'
   | 'documents'
   | 'ocr-processing'
-  | 'atlas';
+  | 'atlas'
+  | 'dss';
 
 // Map URL → Page
 const pathToPage: Record<string, Page> = {
@@ -38,7 +40,8 @@ const pathToPage: Record<string, Page> = {
   '/dashboard/allotments': 'allotments',
   '/dashboard/documents': 'documents',
   '/dashboard/ocr-processing': 'ocr-processing',
-  '/dashboard/fra-atlas': 'atlas'
+  '/dashboard/fra-atlas': 'atlas',
+  '/dashboard/dss': 'dss'
 };
 
 // Map Page → URL
@@ -52,7 +55,8 @@ const pageToPath: Record<Page, string> = {
   allotments: '/dashboard/allotments',
   documents: '/dashboard/documents',
   'ocr-processing': '/dashboard/ocr-processing',
-  'atlas': '/dashboard/atlas',
+  atlas: '/dashboard/atlas',
+  dss: '/dashboard/dss',
 };
 function getPageFromPath(path: string): Page {
   // Try to match exact path first
@@ -138,6 +142,7 @@ function AppContent() {
     allotments: <Allotments />,
     documents: <DocumentCenter />,
     'ocr-processing': <OCRProcessor />,
+    dss: <DSSPage />,
     landing: <Dashboard />, // fallback
     auth: <Dashboard />,
     atlas: <FRAAtlasMap/> // fallback

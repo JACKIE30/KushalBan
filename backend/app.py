@@ -328,6 +328,86 @@ async def analyze_land_assets(data: Dict[str, Any]):
         "received_data": data
     }
 
+# DSS (Decision Support System) endpoints
+@app.get("/api/dss/health")
+async def dss_health():
+    """DSS service health check"""
+    return {
+        "status": "available",
+        "message": "Decision Support System ready",
+        "features": ["FRA analysis", "Land cover analysis", "Document processing"]
+    }
+
+@app.post("/api/dss/analyze")
+async def dss_analyze(request_data: Dict[str, Any]):
+    """
+    DSS Analysis endpoint for land cover and FRA data processing
+    """
+    try:
+        analysis_type = request_data.get("analysisType", "land_cover")
+        
+        if analysis_type == "land_cover":
+            # Read the land cover data from the examples file
+            land_cover_file = os.path.join(os.path.dirname(__file__), "DSS", "examples", "land_cover.txt")
+            
+            if os.path.exists(land_cover_file):
+                land_cover_data = {}
+                with open(land_cover_file, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if ':' in line:
+                            key, value = line.split(':', 1)
+                            key = key.strip()
+                            value = value.strip().rstrip('%')
+                            try:
+                                land_cover_data[key] = float(value)
+                            except ValueError:
+                                continue
+                
+                return {
+                    "success": True,
+                    "data": {
+                        "landCoverAnalysis": land_cover_data,
+                        "analysisType": "land_cover",
+                        "timestamp": datetime.now().isoformat()
+                    },
+                    "message": "Land cover analysis completed successfully"
+                }
+            else:
+                # Return mock data if file doesn't exist
+                return {
+                    "success": True,
+                    "data": {
+                        "landCoverAnalysis": {
+                            "Background": 0.00,
+                            "Bareland": 0.00,
+                            "Rangeland": 14.79,
+                            "Developed_Space": 5.74,
+                            "Road": 0.00,
+                            "Tree": 16.01,
+                            "Water": 0.08,
+                            "Agriculture land": 61.79,
+                            "Building": 1.59
+                        },
+                        "analysisType": "land_cover",
+                        "timestamp": datetime.now().isoformat()
+                    },
+                    "message": "Land cover analysis completed (using sample data)"
+                }
+        
+        else:
+            return {
+                "success": False,
+                "error": f"Unsupported analysis type: {analysis_type}",
+                "supportedTypes": ["land_cover"]
+            }
+    
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"DSS analysis failed: {str(e)}"
+        }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

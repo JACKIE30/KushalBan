@@ -17,7 +17,8 @@ import {
   PlusCircle,
   LogOut,
   ArrowLeft,
-  Scan
+  Scan,
+  Brain
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
@@ -36,7 +37,8 @@ type Page =
   | 'allotments'
   | 'documents'
   | 'ocr-processing'
-  | 'atlas';
+  | 'atlas'
+  | 'dss';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -56,6 +58,7 @@ export function Layout({ children, activeTab, onNavigate }: LayoutProps) {
     { id: 'allotments', label: t('sidebar.allotments'), icon: TreePine },
     { id: 'documents', label: t('sidebar.documents'), icon: Upload },
     { id: 'ocr-processing', label: t('sidebar.ocrProcessing'), icon: Scan },
+    { id: 'dss', label: t('sidebar.dss') || 'DSS', icon: Brain },
     {id: 'atlas', label: t('sidebar.atlas'), icon: Scan},
   ];
 

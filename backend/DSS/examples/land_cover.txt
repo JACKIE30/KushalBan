@@ -1,0 +1,9 @@
+Background: 0.00%
+Bareland: 0.00%
+Rangeland: 14.79%
+Developed_Space: 5.74%
+Road: 0.00%
+Tree: 16.01%
+Water: 0.08%
+Agriculture land: 61.79%
+Building: 1.59%

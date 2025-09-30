@@ -113,6 +113,8 @@ const translations = {
     'sidebar.maps': 'GIS Mapping',
     'sidebar.documents': 'Document Center',
     'sidebar.ocrProcessing': 'OCR Processing',
+    'sidebar.dss': 'DSS',
+    'sidebar.atlas': 'FRA Atlas',
 
     // OCR Processing
     'ocr.title': 'OCR + NER Document Processing',
@@ -407,6 +409,8 @@ const translations = {
     'sidebar.maps': 'जीआईएस मैपिंग',
     'sidebar.documents': 'दस्तावेज़ केंद्र',
     'sidebar.ocrProcessing': 'ओसीआर प्रसंस्करण',
+    'sidebar.dss': 'डीएसएस',
+    'sidebar.atlas': 'एफआरए एटलस',
 
     // OCR Processing
     'ocr.title': 'ओसीआर + एनईआर दस्तावेज़ प्रसंस्करण',
