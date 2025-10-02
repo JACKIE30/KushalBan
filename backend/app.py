@@ -395,11 +395,52 @@ async def dss_analyze(request_data: Dict[str, Any]):
                     "message": "Land cover analysis completed (using sample data)"
                 }
         
+        elif analysis_type == "scheme_recommendations":
+            # Read the latest scheme analysis JSON from output directory
+            output_dir = os.path.join(os.path.dirname(__file__), "DSS", "output")
+            
+            if os.path.exists(output_dir):
+                # Find the latest scheme_analysis JSON file
+                scheme_files = [f for f in os.listdir(output_dir) if f.startswith("scheme_analysis_") and f.endswith(".json")]
+                
+                if scheme_files:
+                    # Sort by modification time to get the latest
+                    latest_file = max(scheme_files, key=lambda f: os.path.getmtime(os.path.join(output_dir, f)))
+                    scheme_file_path = os.path.join(output_dir, latest_file)
+                    
+                    with open(scheme_file_path, 'r', encoding='utf-8') as f:
+                        scheme_data = json.load(f)
+                    
+                    return {
+                        "success": True,
+                        "data": {
+                            "schemeAnalysis": scheme_data.get("developer_json", {}),
+                            "claimantName": scheme_data.get("claimant_name", ""),
+                            "processingTimestamp": scheme_data.get("processing_timestamp", ""),
+                            "analysisMetadata": scheme_data.get("analysis_metadata", {}),
+                            "analysisType": "scheme_recommendations",
+                            "timestamp": datetime.now().isoformat()
+                        },
+                        "message": "Scheme recommendations retrieved successfully"
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "error": "No scheme analysis data found in output directory",
+                        "message": "Please run the scheme analysis pipeline first"
+                    }
+            else:
+                return {
+                    "success": False,
+                    "error": "Output directory not found",
+                    "message": "Please create the output directory and run the analysis"
+                }
+        
         else:
             return {
                 "success": False,
                 "error": f"Unsupported analysis type: {analysis_type}",
-                "supportedTypes": ["land_cover"]
+                "supportedTypes": ["land_cover", "scheme_recommendations"]
             }
     
     except Exception as e:

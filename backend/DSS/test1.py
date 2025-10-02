@@ -364,26 +364,18 @@ Focus on schemes where this specific claimant has direct eligibility and quantif
             
             # Save if requested
             if save_output:
-                output_dir = "gram_sahayak_output"
+                output_dir = "output"
                 os.makedirs(output_dir, exist_ok=True)
                 
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 claimant_name = result['claimant_name'].replace(' ', '_').lower()
                 
-                # Save markdown report
-                md_file = os.path.join(output_dir, f"scheme_report_{claimant_name}_{timestamp}.md")
-                with open(md_file, 'w', encoding='utf-8') as f:
-                    f.write(f"# Scheme Recommendations for {result['claimant_name']}\n\n")
-                    f.write(f"*Generated on {datetime.now().strftime('%B %d, %Y')}*\n\n")
-                    f.write(result["user_report"])
-                
-                # Save JSON analysis
-                json_file = os.path.join(output_dir, f"analysis_{claimant_name}_{timestamp}.json")
+                # Save JSON analysis only
+                json_file = os.path.join(output_dir, f"scheme_analysis_{claimant_name}_{timestamp}.json")
                 with open(json_file, 'w', encoding='utf-8') as f:
                     json.dump(result, f, indent=2, ensure_ascii=False)
                 
-                print(f"📄 Report saved: {md_file}")
-                print(f"🔧 Analysis saved: {json_file}")
+                print(f"✅ Analysis saved: {json_file}")
         
         return result
 
@@ -400,14 +392,14 @@ def main():
         agent = GramSahayakAgent()
         print("✅ Enhanced Gram Sahayak initialized successfully")
         
-        # Check for FRA profile
-        profile_path = input("Enter path to fra_profile_output.json (default: fra_profile_output.json): ").strip() 
+        # Check for FRA profile in output directory
+        profile_path = "output/fra_profile_output.json"
         
         if not os.path.exists(profile_path):
             print(f"❌ Profile file not found: {profile_path}")
             print("\n🔧 To fix this:")
             print("1. Run the FRA data processor first: python main.py")
-            print("2. Ensure fra_profile_output.json is generated")
+            print("2. Ensure fra_profile_output.json is generated in output directory")
             print("3. Then run this Gram Sahayak agent")
             return
         
@@ -451,7 +443,7 @@ def main():
                 print("⚠️  No structured analysis found")
                 print(f"Raw developer JSON: {json.dumps(dev_json, indent=2)[:500]}...")
             
-            print(f"\n✅ Complete analysis saved in 'gram_sahayak_output' directory")
+            print(f"\n✅ Complete analysis saved in 'output' directory")
             
         else:
             print(f"❌ Analysis failed: {result.get('error')}")

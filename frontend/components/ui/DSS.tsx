@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './card';
 import { Badge } from './badge';
 import { Progress } from './progress';
 import { Button } from './button';
-import { RefreshCw, FileText, BarChart } from 'lucide-react';
+import { RefreshCw, FileText, BarChart, ExternalLink, Award, TrendingUp, User, MapPin, Droplet } from 'lucide-react';
 
 // Types for land cover data
 interface LandCoverData {
@@ -20,12 +20,53 @@ interface LandCoverData {
   Building: number;
 }
 
+// Types for scheme recommendations
+interface Scheme {
+  scheme_name: string;
+  reasoning: string;
+  official_link: string;
+  estimated_benefit: string;
+}
+
+interface ProfileAnalysis {
+  primary_eligibility_factors: string[];
+  main_livelihood_focus: string;
+  geographic_advantages: string;
+}
+
+interface SchemeAnalysis {
+  scheme_analysis: {
+    high_priority: Scheme[];
+    medium_priority: Scheme[];
+    profile_analysis: ProfileAnalysis;
+  };
+}
+
+interface SchemeData {
+  schemeAnalysis: SchemeAnalysis;
+  claimantName: string;
+  processingTimestamp: string;
+  analysisMetadata: {
+    profile_summary: {
+      social_category: string;
+      land_use_primary: string;
+      location: string;
+      water_access: string;
+    };
+  };
+}
+
 interface DSSResponse {
   success: boolean;
   data?: {
     landCoverAnalysis?: LandCoverData;
+    schemeAnalysis?: SchemeAnalysis;
+    claimantName?: string;
+    processingTimestamp?: string;
+    analysisMetadata?: any;
   };
   error?: string;
+  message?: string;
 }
 
 // Color mapping for different land cover types
@@ -41,23 +82,13 @@ const landCoverColors: Record<string, string> = {
   'Building': '#dc2626'
 };
 
-// Mock data for development/fallback
-const mockLandCoverData: LandCoverData = {
-  Background: 0.00,
-  Bareland: 0.00,
-  Rangeland: 14.79,
-  Developed_Space: 5.74,
-  Road: 0.00,
-  Tree: 16.01,
-  Water: 0.08,
-  "Agriculture land": 61.79,
-  Building: 1.59
-};
-
 export default function DSS() {
   const [landCoverData, setLandCoverData] = useState<LandCoverData | null>(null);
+  const [schemeData, setSchemeData] = useState<SchemeData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [schemeLoading, setSchemeLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [schemeError, setSchemeError] = useState<string | null>(null);
 
   // Function to fetch land cover data from backend
   const fetchLandCoverData = async () => {
@@ -90,25 +121,61 @@ export default function DSS() {
     } catch (err) {
       console.error('Error fetching land cover data:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
-      // Use mock data as fallback
-      setLandCoverData(mockLandCoverData);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to fetch scheme recommendations from backend
+  const fetchSchemeRecommendations = async () => {
+    setSchemeLoading(true);
+    setSchemeError(null);
+    
+    try {
+      const response = await fetch('/api/dss/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          analysisType: 'scheme_recommendations'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result: DSSResponse = await response.json();
+      
+      if (result.success && result.data?.schemeAnalysis) {
+        setSchemeData({
+          schemeAnalysis: result.data.schemeAnalysis,
+          claimantName: result.data.claimantName || '',
+          processingTimestamp: result.data.processingTimestamp || '',
+          analysisMetadata: result.data.analysisMetadata || {}
+        });
+      } else {
+        throw new Error(result.error || result.message || 'Failed to fetch scheme recommendations');
+      }
+    } catch (err) {
+      console.error('Error fetching scheme recommendations:', err);
+      setSchemeError(err instanceof Error ? err.message : 'Unknown error occurred');
+    } finally {
+      setSchemeLoading(false);
     }
   };
 
   // Load data on component mount
   useEffect(() => {
     fetchLandCoverData();
+    fetchSchemeRecommendations();
   }, []);
 
   // Format percentage display
   const formatPercentage = (value: number): string => {
     return `${value.toFixed(2)}%`;
   };
-
-  // Get the data to display (either fetched or mock)
-  const displayData = landCoverData || mockLandCoverData;
 
   return (
     <div className="w-full max-w-6xl mx-auto p-6 space-y-8">
@@ -181,12 +248,16 @@ export default function DSS() {
         <CardContent>
           {loading ? (
             <div className="space-y-4">
-              {Object.keys(mockLandCoverData).map((key) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((key) => (
                 <div key={key} className="flex items-center space-x-4">
                   <div className="w-32 h-4 bg-gray-200 rounded animate-pulse" />
                   <div className="w-16 h-4 bg-gray-200 rounded animate-pulse" />
                 </div>
               ))}
+            </div>
+          ) : !landCoverData ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No land cover data available. Please check the backend connection.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -204,13 +275,13 @@ export default function DSS() {
                   </Badge>
                 </div>
                 <div className="font-mono text-sm space-y-2 bg-white/80 p-4 rounded-lg border border-gray-200 shadow-inner">
-                  {Object.entries(displayData).map(([key, value], index) => (
+                  {Object.entries(landCoverData).map(([key, value], index) => (
                     <div key={key} className="flex justify-between items-center group hover:bg-blue-50 px-2 py-1 rounded transition-colors">
                       <span className="text-gray-700 group-hover:text-gray-900 transition-colors">
                         <span className="text-blue-600">&gt;</span> {key}:
                       </span>
                       <span className="font-bold text-black group-hover:text-black transition-colors">
-                        {formatPercentage(value)}
+                        {formatPercentage(value as number)}
                       </span>
                     </div>
                   ))}
@@ -223,9 +294,9 @@ export default function DSS() {
                 
                 {/* Circular Progress Charts for Major Categories */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  {Object.entries(displayData)
-                    .filter(([_, value]) => value > 0) // Only show non-zero values
-                    .sort(([_, a], [__, b]) => b - a) // Sort by value descending
+                  {Object.entries(landCoverData)
+                    .filter(([_, value]) => (value as number) > 0) // Only show non-zero values
+                    .sort(([_, a], [__, b]) => (b as number) - (a as number)) // Sort by value descending
                     .map(([key, value]) => (
                     <div key={key} className="relative">
                       {/* Circular Progress */}
@@ -249,7 +320,7 @@ export default function DSS() {
                             stroke={landCoverColors[key] || '#6b7280'}
                             strokeWidth="8"
                             fill="transparent"
-                            strokeDasharray={`${2.51 * value} 251.2`}
+                            strokeDasharray={`${2.51 * (value as number)} 251.2`}
                             strokeLinecap="round"
                             className="transition-all duration-1000 ease-out"
                             style={{
@@ -261,7 +332,7 @@ export default function DSS() {
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center">
                             <div className="text-sm font-bold text-black">
-                              {formatPercentage(value)}
+                              {formatPercentage(value as number)}
                             </div>
                           </div>
                         </div>
@@ -280,8 +351,8 @@ export default function DSS() {
                 <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-6">
                   <h4 className="text-md font-semibold text-gray-900 mb-4">Detailed Breakdown</h4>
                   <div className="space-y-4">
-                    {Object.entries(displayData)
-                      .sort(([_, a], [__, b]) => b - a)
+                    {Object.entries(landCoverData)
+                      .sort(([_, a], [__, b]) => (b as number) - (a as number))
                       .map(([key, value]) => (
                       <div key={key} className="group">
                         <div className="flex items-center justify-between mb-2">
@@ -299,7 +370,7 @@ export default function DSS() {
                             className="font-mono group-hover:bg-gray-100 transition-colors text-gray-900"
                             style={{ borderColor: landCoverColors[key] }}
                           >
-                            {formatPercentage(value)}
+                            {formatPercentage(value as number)}
                           </Badge>
                         </div>
                         {/* Animated Bar */}
@@ -307,7 +378,7 @@ export default function DSS() {
                           <div
                             className="h-full rounded-full transition-all duration-1000 ease-out group-hover:brightness-110"
                             style={{
-                              width: `${Math.max(value, 0.5)}%`, // Minimum width for visibility
+                              width: `${Math.max(value as number, 0.5)}%`, // Minimum width for visibility
                               background: `linear-gradient(90deg, ${landCoverColors[key]}dd, ${landCoverColors[key]})`
                             }}
                           />
@@ -339,7 +410,7 @@ export default function DSS() {
                         <div>
                           <h5 className="font-semibold text-green-800">Forest Health</h5>
                           <p className="text-sm text-green-700 mt-1">
-                            {formatPercentage(displayData.Tree + displayData.Rangeland)} total green cover
+                            {formatPercentage(landCoverData.Tree + landCoverData.Rangeland)} total green cover
                           </p>
                         </div>
                       </div>
@@ -358,7 +429,7 @@ export default function DSS() {
                         <div>
                           <h5 className="font-semibold text-yellow-800">Agricultural Use</h5>
                           <p className="text-sm text-yellow-700 mt-1">
-                            {formatPercentage(displayData["Agriculture land"])} farmland coverage
+                            {formatPercentage(landCoverData["Agriculture land"])} farmland coverage
                           </p>
                         </div>
                       </div>
@@ -382,7 +453,7 @@ export default function DSS() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-3xl font-bold mb-1">
-                          {formatPercentage(displayData["Agriculture land"])}
+                          {formatPercentage(landCoverData["Agriculture land"])}
                         </div>
                         <div className="text-yellow-100 text-sm font-medium">Agriculture Land</div>
                       </div>
@@ -403,7 +474,7 @@ export default function DSS() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-3xl font-bold mb-1">
-                          {formatPercentage(displayData.Tree)}
+                          {formatPercentage(landCoverData.Tree)}
                         </div>
                         <div className="text-green-100 text-sm font-medium">Forest Cover</div>
                       </div>
@@ -424,7 +495,7 @@ export default function DSS() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-3xl font-bold mb-1">
-                          {formatPercentage(displayData.Water)}
+                          {formatPercentage(landCoverData.Water)}
                         </div>
                         <div className="text-blue-100 text-sm font-medium">Water Bodies</div>
                       </div>
@@ -445,7 +516,7 @@ export default function DSS() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="text-3xl font-bold mb-1">
-                          {formatPercentage(displayData.Developed_Space + displayData.Building + displayData.Road)}
+                          {formatPercentage(landCoverData.Developed_Space + landCoverData.Building + landCoverData.Road)}
                         </div>
                         <div className="text-gray-100 text-sm font-medium">Developed Areas</div>
                       </div>
@@ -464,6 +535,266 @@ export default function DSS() {
           )}
         </CardContent>
       </Card>
+
+      {/* Scheme Recommendations Section */}
+      {schemeData && (
+        <>
+          {/* Claimant Profile Header */}
+          <Card className="shadow-2xl border-0 bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50">
+            <CardHeader className="bg-gradient-to-r from-purple-100 to-pink-100 border-b">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center space-x-3 text-xl">
+                  <div className="p-2 bg-purple-500 rounded-lg">
+                    <Award className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    Scheme Recommendations for {schemeData.claimantName}
+                  </span>
+                </CardTitle>
+                <Button 
+                  onClick={fetchSchemeRecommendations} 
+                  disabled={schemeLoading}
+                  variant="secondary"
+                  size="sm"
+                  className="bg-purple-100 hover:bg-purple-200 text-purple-700"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${schemeLoading ? 'animate-spin' : ''}`} />
+                  <span>Refresh</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              {/* Profile Summary */}
+              {schemeData.analysisMetadata?.profile_summary && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div className="flex items-center space-x-3 bg-white p-4 rounded-lg shadow-sm">
+                    <User className="w-5 h-5 text-purple-600" />
+                    <div>
+                      <div className="text-xs text-gray-500">Social Category</div>
+                      <div className="font-semibold text-gray-900 text-sm">
+                        {schemeData.analysisMetadata.profile_summary.social_category}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 bg-white p-4 rounded-lg shadow-sm">
+                    <TrendingUp className="w-5 h-5 text-green-600" />
+                    <div>
+                      <div className="text-xs text-gray-500">Primary Land Use</div>
+                      <div className="font-semibold text-gray-900 text-sm">
+                        {schemeData.analysisMetadata.profile_summary.land_use_primary}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 bg-white p-4 rounded-lg shadow-sm">
+                    <MapPin className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <div className="text-xs text-gray-500">Location</div>
+                      <div className="font-semibold text-gray-900 text-sm">
+                        {schemeData.analysisMetadata.profile_summary.location}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 bg-white p-4 rounded-lg shadow-sm">
+                    <Droplet className="w-5 h-5 text-cyan-600" />
+                    <div>
+                      <div className="text-xs text-gray-500">Water Access</div>
+                      <div className="font-semibold text-gray-900 text-sm">
+                        {schemeData.analysisMetadata.profile_summary.water_access}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* High Priority Schemes */}
+          {schemeData.schemeAnalysis.scheme_analysis.high_priority.length > 0 && (
+            <Card className="shadow-2xl border-0 bg-white">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+                <CardTitle className="flex items-center space-x-3 text-lg">
+                  <div className="p-2 bg-green-500 rounded-lg">
+                    <Award className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-green-800">High Priority Schemes</span>
+                  <Badge className="bg-green-500 text-white">
+                    {schemeData.schemeAnalysis.scheme_analysis.high_priority.length} schemes
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {schemeData.schemeAnalysis.scheme_analysis.high_priority.map((scheme, index) => (
+                    <Card key={index} className="border-2 border-green-200 hover:border-green-400 transition-all hover:shadow-lg bg-gradient-to-br from-white to-green-50">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between mb-3">
+                          <h4 className="font-bold text-gray-900 text-lg leading-tight flex-1">
+                            {scheme.scheme_name}
+                          </h4>
+                          <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300 ml-2">
+                            High Priority
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                          {scheme.reasoning}
+                        </p>
+                        
+                        <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                          <div className="text-xs text-green-700 font-semibold mb-1">Estimated Benefit</div>
+                          <div className="text-sm font-bold text-green-800">
+                            {scheme.estimated_benefit}
+                          </div>
+                        </div>
+                        
+                        <a 
+                          href={scheme.official_link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center space-x-2 text-sm font-semibold text-green-600 hover:text-green-700 hover:underline"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          <span>Visit Official Portal</span>
+                        </a>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Medium Priority Schemes */}
+          {schemeData.schemeAnalysis.scheme_analysis.medium_priority.length > 0 && (
+            <Card className="shadow-2xl border-0 bg-white">
+              <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 border-b">
+                <CardTitle className="flex items-center space-x-3 text-lg">
+                  <div className="p-2 bg-yellow-500 rounded-lg">
+                    <TrendingUp className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-yellow-800">Medium Priority Schemes</span>
+                  <Badge className="bg-yellow-500 text-white">
+                    {schemeData.schemeAnalysis.scheme_analysis.medium_priority.length} schemes
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {schemeData.schemeAnalysis.scheme_analysis.medium_priority.map((scheme, index) => (
+                    <Card key={index} className="border-2 border-yellow-200 hover:border-yellow-400 transition-all hover:shadow-lg bg-gradient-to-br from-white to-yellow-50">
+                      <CardContent className="p-5">
+                        <div className="flex items-start justify-between mb-3">
+                          <h4 className="font-bold text-gray-900 text-lg leading-tight flex-1">
+                            {scheme.scheme_name}
+                          </h4>
+                          <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-300 ml-2">
+                            Medium Priority
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                          {scheme.reasoning}
+                        </p>
+                        
+                        <div className="mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                          <div className="text-xs text-yellow-700 font-semibold mb-1">Estimated Benefit</div>
+                          <div className="text-sm font-bold text-yellow-800">
+                            {scheme.estimated_benefit}
+                          </div>
+                        </div>
+                        
+                        <a 
+                          href={scheme.official_link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center space-x-2 text-sm font-semibold text-yellow-600 hover:text-yellow-700 hover:underline"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          <span>Visit Official Portal</span>
+                        </a>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Profile Analysis */}
+          {schemeData.schemeAnalysis.scheme_analysis.profile_analysis && (
+            <Card className="shadow-2xl border-0 bg-gradient-to-r from-blue-50 to-indigo-50">
+              <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100 border-b">
+                <CardTitle className="flex items-center space-x-3 text-lg">
+                  <div className="p-2 bg-blue-500 rounded-lg">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-blue-800">Profile Analysis Summary</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Eligibility Factors */}
+                  <div className="bg-white p-5 rounded-xl shadow-sm">
+                    <h5 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                      <span>Primary Eligibility Factors</span>
+                    </h5>
+                    <ul className="space-y-2">
+                      {schemeData.schemeAnalysis.scheme_analysis.profile_analysis.primary_eligibility_factors.map((factor, index) => (
+                        <li key={index} className="text-sm text-gray-700 flex items-start">
+                          <span className="text-blue-500 mr-2">•</span>
+                          <span>{factor}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Livelihood Focus */}
+                  <div className="bg-white p-5 rounded-xl shadow-sm">
+                    <h5 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      <span>Main Livelihood Focus</span>
+                    </h5>
+                    <p className="text-gray-700 text-sm">
+                      {schemeData.schemeAnalysis.scheme_analysis.profile_analysis.main_livelihood_focus}
+                    </p>
+                  </div>
+
+                  {/* Geographic Advantages */}
+                  <div className="bg-white p-5 rounded-xl shadow-sm">
+                    <h5 className="font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                      <span>Geographic Advantages</span>
+                    </h5>
+                    <p className="text-gray-700 text-sm">
+                      {schemeData.schemeAnalysis.scheme_analysis.profile_analysis.geographic_advantages}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      {/* Scheme Error Message */}
+      {schemeError && (
+        <Card className="border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-3 text-yellow-800">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-semibold">Scheme Recommendations Unavailable</h4>
+                <p className="text-sm text-yellow-700 mt-1">
+                  {schemeError} - Please run the scheme analysis pipeline to generate recommendations.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Enhanced Data Source Info */}
       <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-blue-200 shadow-lg">

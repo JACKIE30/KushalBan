@@ -1,0 +1,29 @@
+{
+  "holder_name": "Harisukh",
+  "dependents": [
+    "Ram Dyal",
+    "Smt. jana Devi",
+    "Rajeev Kumar",
+    "Rajan Kumar",
+    "Vichiter Singh",
+    "Rahul",
+    "Chhanga Ram"
+  ],
+  "social_category": "Other Traditional Forest Dweller",
+  "fra_right_type": "Individual Forest Rights",
+  "land_use_primary": "Agriculture",
+  "land_use_distribution": {
+    "Agriculture": "61.79%",
+    "Forest": "16.01%",
+    "Water": "0.08%",
+    "Settlement": "7.33%",
+    "Other": "14.79%"
+  },
+  "water_access": "Presumed Rain-fed",
+  "location": {
+    "village": "Padhrotu",
+    "tehsil": "Dalhousie",
+    "district": "Chamba",
+    "state": "Himachal Pradesh"
+  }
+}

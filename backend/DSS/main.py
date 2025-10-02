@@ -201,10 +201,16 @@ def main():
         # Convert Pydantic model to dictionary for JSON serialization
         profile_dict = result.data.model_dump(exclude_none=True) if result.data else {}
         print(json.dumps(profile_dict, indent=2, ensure_ascii=False))
-        # Save to JSON file
-        with open(r"F:\ML + Projects\SIH\DSS\fra_profile_output.json", "w", encoding="utf-8") as f:
+        
+        # Create output directory if it doesn't exist
+        output_dir = "output"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Save to JSON file in output directory
+        output_file = os.path.join(output_dir, "fra_profile_output.json")
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(profile_dict, f, indent=2, ensure_ascii=False)
-        print("💾 Profile saved to: fra_profile_output.json")
+        print(f"💾 Profile saved to: {output_file}")
     else:
         print(f"❌ Processing failed: {result.error}")
     

@@ -1,0 +1,68 @@
+{
+  "success": true,
+  "user_report": "Okay, I will analyze the provided FRA claimant profile and generate personalized scheme recommendations in both user-friendly Markdown and developer JSON formats.\n\n### User-Friendly Report (Markdown):\n\nHello Harisukh Ji,\n\nIt's wonderful to connect with you! As your Gram Sahayak, I've reviewed your profile and identified several central government schemes that can significantly benefit you and your family. Because you are an Other Traditional Forest Dweller with Individual Forest Rights and primarily engaged in agriculture, you are eligible for several programs designed to improve your livelihood and well-being.\n\nHere are some schemes that I believe would be most helpful for you:\n\n**High Priority Schemes:**\n\n*   **Pradhan Mantri Kisan Samman Nidhi (PM-KISAN):** This scheme provides ₹6000 per year in direct income support to farmers. Since you are engaged in agriculture on your forest land, you are eligible for this benefit. This money can help you with purchasing seeds, fertilizers, or other essential farming needs.\n    *   **Next Steps:** Visit the PM-KISAN portal ([https://pmkisan.gov.in/](https://pmkisan.gov.in/)) or your nearest Common Service Center (CSC) to register. Keep your Aadhaar card, bank account details, and land records handy.\n    *   **Estimated Benefit:** ₹6000 per year.\n\n*   **Pradhan Mantri Fasal Bima Yojana (PMFBY):** Protecting your crops from unforeseen events is crucial. This crop insurance scheme helps farmers like you mitigate losses due to natural calamities.\n    *   **Next Steps:** Contact your local agriculture department or visit the PMFBY portal ([https://pmfby.gov.in/](https://pmfby.gov.in/)) to enroll. You'll need your Aadhaar card, bank account details, land records, and a sowing certificate.\n    *   **Estimated Benefit:** Coverage against crop loss based on the sum insured.\n\n*   **Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA):** This scheme guarantees 100 days of wage employment to rural households. Even with your agricultural activities, MGNREGA can provide additional income and livelihood security.\n    *   **Next Steps:** Apply for a Job Card at your Gram Panchayat. You'll need your Aadhaar card and bank account details.\n    *   **Estimated Benefit:** Wage employment for up to 100 days per household.\n\n*   **Pradhan Mantri Awas Yojana - Gramin (PMAY-G):** As an Other Traditional Forest Dweller, you are prioritized under this scheme for housing assistance. If you need a pucca house, this scheme can provide financial support.\n    *   **Next Steps:** Contact your Gram Panchayat or Block Development Office to apply. You'll need your Aadhaar card, bank account details, and income certificate.\n\n*   **Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana (PMJAY):** Your health is paramount. This scheme provides health insurance coverage of up to ₹5 lakhs per family per year, ensuring access to quality healthcare.\n    *   **Next Steps:** Check your eligibility on the PMJAY portal ([https://pmjay.gov.in/](https://pmjay.gov.in/)) using your Aadhaar card or Ration Card.\n\n**Medium Priority Scheme:**\n\n*   **PM Kisan Urja Suraksha evam Utthaan Mahabhiyan (PM-KUSUM):** Given your agricultural land, exploring solar energy solutions can be beneficial in the long run. This scheme supports farmers in installing solar pumps and generating solar power.\n    *   **Next Steps:** Contact your local agriculture department or visit the PM-KUSUM portal ([https://pmkusum.mnre.gov.in/](https://pmkusum.mnre.gov.in/)) for more information.\n\nI hope this information is helpful, Harisukh Ji! Please don't hesitate to reach out if you have any questions or need further assistance. I am here to support you in accessing these benefits and improving your life.\n\n### Developer JSON:",
+  "developer_json": {
+    "scheme_analysis": {
+      "high_priority": [
+        {
+          "scheme_name": "Pradhan Mantri Kisan Samman Nidhi",
+          "reasoning": "Claimant is an Other Traditional Forest Dweller engaged in agriculture, making them eligible for direct income support under PM-KISAN.",
+          "official_link": "https://pmkisan.gov.in/",
+          "estimated_benefit": "₹6000 per year"
+        },
+        {
+          "scheme_name": "Pradhan Mantri Fasal Bima Yojana",
+          "reasoning": "Claimant's primary land use is agriculture, making them eligible for crop insurance under PMFBY to mitigate crop loss risks.",
+          "official_link": "https://pmfby.gov.in/",
+          "estimated_benefit": "Coverage against crop loss based on the sum insured."
+        },
+        {
+          "scheme_name": "Mahatma Gandhi National Rural Employment Guarantee Act",
+          "reasoning": "Universal scheme for rural households guaranteeing 100 days of wage employment. Provides additional income security.",
+          "official_link": "https://nrega.nic.in/",
+          "estimated_benefit": "Wage employment for up to 100 days per household."
+        },
+        {
+          "scheme_name": "Pradhan Mantri Awas Yojana - Gramin",
+          "reasoning": "Claimant is an Other Traditional Forest Dweller, a prioritized category for housing assistance under PMAY-G.",
+          "official_link": "https://pmaymis.gov.in/",
+          "estimated_benefit": "Financial assistance for constructing a house."
+        },
+        {
+          "scheme_name": "Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana",
+          "reasoning": "Universal health coverage scheme providing health insurance coverage up to ₹5 lakhs per family per year.",
+          "official_link": "https://pmjay.gov.in/",
+          "estimated_benefit": "Health insurance coverage up to ₹5 lakhs per family per year."
+        }
+      ],
+      "medium_priority": [
+        {
+          "scheme_name": "PM Kisan Urja Suraksha evam Utthaan Mahabhiyan",
+          "reasoning": "Claimant's engagement in agriculture makes them potentially eligible for solar energy solutions to improve irrigation and reduce electricity costs.",
+          "official_link": "https://pmkusum.mnre.gov.in/",
+          "estimated_benefit": "Reduced irrigation costs and potential income from surplus solar power generation."
+        }
+      ],
+      "profile_analysis": {
+        "primary_eligibility_factors": [
+          "Other Traditional Forest Dweller",
+          "Individual Forest Rights",
+          "Agriculture as primary land use"
+        ],
+        "main_livelihood_focus": "Agriculture",
+        "geographic_advantages": "Access to Himachal Pradesh state-specific agricultural schemes (to be researched separately)"
+      }
+    }
+  },
+  "raw_response": "Okay, I will analyze the provided FRA claimant profile and generate personalized scheme recommendations in both user-friendly Markdown and developer JSON formats.\n\n### User-Friendly Report (Markdown):\n\nHello Harisukh Ji,\n\nIt's wonderful to connect with you! As your Gram Sahayak, I've reviewed your profile and identified several central government schemes that can significantly benefit you and your family. Because you are an Other Traditional Forest Dweller with Individual Forest Rights and primarily engaged in agriculture, you are eligible for several programs designed to improve your livelihood and well-being.\n\nHere are some schemes that I believe would be most helpful for you:\n\n**High Priority Schemes:**\n\n*   **Pradhan Mantri Kisan Samman Nidhi (PM-KISAN):** This scheme provides ₹6000 per year in direct income support to farmers. Since you are engaged in agriculture on your forest land, you are eligible for this benefit. This money can help you with purchasing seeds, fertilizers, or other essential farming needs.\n    *   **Next Steps:** Visit the PM-KISAN portal ([https://pmkisan.gov.in/](https://pmkisan.gov.in/)) or your nearest Common Service Center (CSC) to register. Keep your Aadhaar card, bank account details, and land records handy.\n    *   **Estimated Benefit:** ₹6000 per year.\n\n*   **Pradhan Mantri Fasal Bima Yojana (PMFBY):** Protecting your crops from unforeseen events is crucial. This crop insurance scheme helps farmers like you mitigate losses due to natural calamities.\n    *   **Next Steps:** Contact your local agriculture department or visit the PMFBY portal ([https://pmfby.gov.in/](https://pmfby.gov.in/)) to enroll. You'll need your Aadhaar card, bank account details, land records, and a sowing certificate.\n    *   **Estimated Benefit:** Coverage against crop loss based on the sum insured.\n\n*   **Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA):** This scheme guarantees 100 days of wage employment to rural households. Even with your agricultural activities, MGNREGA can provide additional income and livelihood security.\n    *   **Next Steps:** Apply for a Job Card at your Gram Panchayat. You'll need your Aadhaar card and bank account details.\n    *   **Estimated Benefit:** Wage employment for up to 100 days per household.\n\n*   **Pradhan Mantri Awas Yojana - Gramin (PMAY-G):** As an Other Traditional Forest Dweller, you are prioritized under this scheme for housing assistance. If you need a pucca house, this scheme can provide financial support.\n    *   **Next Steps:** Contact your Gram Panchayat or Block Development Office to apply. You'll need your Aadhaar card, bank account details, and income certificate.\n\n*   **Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana (PMJAY):** Your health is paramount. This scheme provides health insurance coverage of up to ₹5 lakhs per family per year, ensuring access to quality healthcare.\n    *   **Next Steps:** Check your eligibility on the PMJAY portal ([https://pmjay.gov.in/](https://pmjay.gov.in/)) using your Aadhaar card or Ration Card.\n\n**Medium Priority Scheme:**\n\n*   **PM Kisan Urja Suraksha evam Utthaan Mahabhiyan (PM-KUSUM):** Given your agricultural land, exploring solar energy solutions can be beneficial in the long run. This scheme supports farmers in installing solar pumps and generating solar power.\n    *   **Next Steps:** Contact your local agriculture department or visit the PM-KUSUM portal ([https://pmkusum.mnre.gov.in/](https://pmkusum.mnre.gov.in/)) for more information.\n\nI hope this information is helpful, Harisukh Ji! Please don't hesitate to reach out if you have any questions or need further assistance. I am here to support you in accessing these benefits and improving your life.\n\n### Developer JSON:\n\n```json\n{\n  \"scheme_analysis\": {\n    \"high_priority\": [\n      {\n        \"scheme_name\": \"Pradhan Mantri Kisan Samman Nidhi\",\n        \"reasoning\": \"Claimant is an Other Traditional Forest Dweller engaged in agriculture, making them eligible for direct income support under PM-KISAN.\",\n        \"official_link\": \"https://pmkisan.gov.in/\",\n        \"estimated_benefit\": \"₹6000 per year\"\n      },\n      {\n        \"scheme_name\": \"Pradhan Mantri Fasal Bima Yojana\",\n        \"reasoning\": \"Claimant's primary land use is agriculture, making them eligible for crop insurance under PMFBY to mitigate crop loss risks.\",\n        \"official_link\": \"https://pmfby.gov.in/\",\n        \"estimated_benefit\": \"Coverage against crop loss based on the sum insured.\"\n      },\n      {\n        \"scheme_name\": \"Mahatma Gandhi National Rural Employment Guarantee Act\",\n        \"reasoning\": \"Universal scheme for rural households guaranteeing 100 days of wage employment. Provides additional income security.\",\n        \"official_link\": \"https://nrega.nic.in/\",\n        \"estimated_benefit\": \"Wage employment for up to 100 days per household.\"\n      },\n      {\n        \"scheme_name\": \"Pradhan Mantri Awas Yojana - Gramin\",\n        \"reasoning\": \"Claimant is an Other Traditional Forest Dweller, a prioritized category for housing assistance under PMAY-G.\",\n        \"official_link\": \"https://pmaymis.gov.in/\",\n        \"estimated_benefit\": \"Financial assistance for constructing a house.\"\n      },\n      {\n        \"scheme_name\": \"Ayushman Bharat - Pradhan Mantri Jan Arogya Yojana\",\n        \"reasoning\": \"Universal health coverage scheme providing health insurance coverage up to ₹5 lakhs per family per year.\",\n        \"official_link\": \"https://pmjay.gov.in/\",\n        \"estimated_benefit\": \"Health insurance coverage up to ₹5 lakhs per family per year.\"\n      }\n    ],\n    \"medium_priority\": [\n      {\n        \"scheme_name\": \"PM Kisan Urja Suraksha evam Utthaan Mahabhiyan\",\n        \"reasoning\": \"Claimant's engagement in agriculture makes them potentially eligible for solar energy solutions to improve irrigation and reduce electricity costs.\",\n        \"official_link\": \"https://pmkusum.mnre.gov.in/\",\n        \"estimated_benefit\": \"Reduced irrigation costs and potential income from surplus solar power generation.\"\n      }\n    ],\n    \"profile_analysis\": {\n      \"primary_eligibility_factors\": [\n        \"Other Traditional Forest Dweller\",\n        \"Individual Forest Rights\",\n        \"Agriculture as primary land use\"\n      ],\n      \"main_livelihood_focus\": \"Agriculture\",\n      \"geographic_advantages\": \"Access to Himachal Pradesh state-specific agricultural schemes (to be researched separately)\"\n    }\n  }\n}\n```\n",
+  "claimant_name": "Harisukh",
+  "processing_timestamp": "2025-10-02T19:58:12.289360",
+  "analysis_metadata": {
+    "profile_summary": {
+      "social_category": "Other Traditional Forest Dweller",
+      "land_use_primary": "Agriculture",
+      "location": "Chamba",
+      "water_access": "Presumed Rain-fed"
+    }
+  }
+}
