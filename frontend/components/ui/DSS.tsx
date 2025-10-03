@@ -89,6 +89,7 @@ export default function DSS() {
   const [schemeLoading, setSchemeLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [schemeError, setSchemeError] = useState<string | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   // Function to fetch land cover data from backend
   const fetchLandCoverData = async () => {
@@ -172,6 +173,43 @@ export default function DSS() {
     fetchSchemeRecommendations();
   }, []);
 
+  // Function to process asset mapping and update DSS
+  const updateDSSFromAssetMapping = async () => {
+    setUpdating(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/asset-mapping/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+      });
+
+      const result = await response.json();
+      console.log('Asset mapping result:', result);
+
+      if (result.success) {
+        // Automatically refresh land cover data after successful processing
+        await fetchLandCoverData();
+        alert(
+          `✅ DSS Updated Successfully!\n\n` +
+          `Land cover data has been processed from the latest FRA polygon image.\n\n` +
+          `Updated data is now displayed below.`
+        );
+      } else {
+        throw new Error(result.error || 'Failed to process asset mapping');
+      }
+    } catch (err) {
+      console.error('Asset mapping error:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      alert(`Failed to update DSS: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   // Format percentage display
   const formatPercentage = (value: number): string => {
     return `${value.toFixed(2)}%`;
@@ -195,16 +233,40 @@ export default function DSS() {
               <p className="text-indigo-100 text-lg">Intelligent Land Cover Analysis</p>
             </div>
           </div>
-          <Button 
-            onClick={fetchLandCoverData} 
-            disabled={loading}
-            variant="secondary"
-            size="lg"
-            className="bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-sm"
-          >
-            <RefreshCw className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh Data</span>
-          </Button>
+          <div className="flex space-x-3">
+            <Button 
+              onClick={updateDSSFromAssetMapping} 
+              disabled={updating}
+              variant="secondary"
+              size="lg"
+              className="bg-purple-600 hover:bg-purple-700 border-purple-500 text-white backdrop-blur-sm"
+            >
+              {updating ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Updating...</span>
+                </>
+              ) : (
+                <>
+                  <MapPin className="w-5 h-5 mr-2" />
+                  <span>Update DSS</span>
+                </>
+              )}
+            </Button>
+            <Button 
+              onClick={fetchLandCoverData} 
+              disabled={loading}
+              variant="secondary"
+              size="lg"
+              className="bg-white/20 hover:bg-white/30 border-white/30 text-white backdrop-blur-sm"
+            >
+              <RefreshCw className={`w-5 h-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              <span>Refresh Data</span>
+            </Button>
+          </div>
         </div>
       </div>
 

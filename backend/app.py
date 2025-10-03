@@ -16,6 +16,7 @@ from pathlib import Path
 import asyncio
 import json
 from datetime import datetime
+import base64
 
 # Add OCR-NER to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'OCR-NER'))
@@ -447,6 +448,189 @@ async def dss_analyze(request_data: Dict[str, Any]):
         return {
             "success": False,
             "error": f"DSS analysis failed: {str(e)}"
+        }
+
+# FRA Atlas export endpoints
+class FRAExportRequest(BaseModel):
+    data: str  # base64 image or JSON string
+    filename: str
+    type: str  # 'image' or 'geojson'
+
+@app.post("/api/fra-atlas/export")
+async def fra_atlas_export(request: FRAExportRequest):
+    """
+    Save FRA Atlas exports (images or GeoJSON) to backend output directory
+    """
+    try:
+        # Create output directory if it doesn't exist
+        output_dir = os.path.join(os.path.dirname(__file__), "output", "fra_atlas")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        if request.type == "image":
+            # Handle base64 image
+            import base64
+            
+            # Remove data URL prefix if present
+            if "base64," in request.data:
+                image_data = request.data.split("base64,")[1]
+            else:
+                image_data = request.data
+            
+            # Decode and save
+            image_bytes = base64.b64decode(image_data)
+            filename = f"fra_polygon_{timestamp}.png"
+            filepath = os.path.join(output_dir, filename)
+            
+            with open(filepath, "wb") as f:
+                f.write(image_bytes)
+            
+            return {
+                "success": True,
+                "message": f"Image saved successfully",
+                "filepath": filepath,
+                "filename": filename
+            }
+            
+        elif request.type == "geojson":
+            # Handle GeoJSON
+            filename = f"fra_claims_{timestamp}.geojson"
+            filepath = os.path.join(output_dir, filename)
+            
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write(request.data)
+            
+            return {
+                "success": True,
+                "message": f"GeoJSON saved successfully",
+                "filepath": filepath,
+                "filename": filename
+            }
+        else:
+            return {
+                "success": False,
+                "error": f"Unsupported export type: {request.type}"
+            }
+    
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Export failed: {str(e)}"
+        }
+
+# Asset Mapping processing endpoint
+class AssetMappingRequest(BaseModel):
+    image_path: Optional[str] = None  # Path to existing image in backend
+    image_filename: Optional[str] = None  # Filename of recently exported image
+
+@app.post("/api/asset-mapping/process")
+async def process_asset_mapping(request: AssetMappingRequest):
+    """
+    Process FRA polygon image through asset mapping model and update DSS land cover data
+    """
+    try:
+        from gradio_client import Client, handle_file
+        
+        # Determine image path
+        if request.image_path:
+            image_path = request.image_path
+        elif request.image_filename:
+            # Use the latest exported image from fra_atlas directory
+            output_dir = os.path.join(os.path.dirname(__file__), "output", "fra_atlas")
+            image_path = os.path.join(output_dir, request.image_filename)
+        else:
+            # Get the most recent image from fra_atlas directory
+            output_dir = os.path.join(os.path.dirname(__file__), "output", "fra_atlas")
+            if not os.path.exists(output_dir):
+                return {
+                    "success": False,
+                    "error": "No FRA Atlas exports found. Please export a polygon image first."
+                }
+            
+            # Find the latest PNG file
+            png_files = [f for f in os.listdir(output_dir) if f.endswith('.png')]
+            if not png_files:
+                return {
+                    "success": False,
+                    "error": "No polygon images found in output directory"
+                }
+            
+            latest_file = max(png_files, key=lambda f: os.path.getmtime(os.path.join(output_dir, f)))
+            image_path = os.path.join(output_dir, latest_file)
+        
+        # Verify image exists
+        if not os.path.exists(image_path):
+            return {
+                "success": False,
+                "error": f"Image not found: {image_path}"
+            }
+        
+        # Process image through Gradio asset mapping model
+        client = Client("TheAstrophile-KingK/asset-mapping")
+        result = client.predict(
+            input_image=handle_file(image_path),
+            api_name="/predict_image"
+        )
+        
+        # Parse the result
+        # Result format: {"annotated_image": "path/to/image", "land_cover_percentages": {...}}
+        land_cover_data = {}
+        
+        if isinstance(result, dict) and "land_cover_percentages" in result:
+            land_cover_data = result["land_cover_percentages"]
+        elif isinstance(result, tuple) and len(result) > 1:
+            # Sometimes Gradio returns tuple (annotated_image_path, land_cover_dict)
+            land_cover_data = result[1] if isinstance(result[1], dict) else {}
+        
+        # Save to DSS land_cover.txt
+        land_cover_file = os.path.join(os.path.dirname(__file__), "DSS", "examples", "land_cover.txt")
+        os.makedirs(os.path.dirname(land_cover_file), exist_ok=True)
+        
+        with open(land_cover_file, 'w') as f:
+            for key, value in land_cover_data.items():
+                f.write(f"{key}: {value}%\n")
+        
+        # Also save the annotated image if available
+        annotated_image_path = None
+        if isinstance(result, dict) and "annotated_image" in result:
+            annotated_image_path = result["annotated_image"]
+        elif isinstance(result, tuple) and len(result) > 0:
+            annotated_image_path = result[0]
+        
+        # Copy annotated image to output if it exists
+        saved_annotated_path = None
+        if annotated_image_path and os.path.exists(annotated_image_path):
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            saved_annotated_path = os.path.join(
+                os.path.dirname(__file__), 
+                "output", 
+                "fra_atlas", 
+                f"annotated_{timestamp}.png"
+            )
+            shutil.copy2(annotated_image_path, saved_annotated_path)
+        
+        return {
+            "success": True,
+            "message": "Asset mapping completed and DSS data updated",
+            "land_cover_data": land_cover_data,
+            "land_cover_file": land_cover_file,
+            "processed_image": image_path,
+            "annotated_image": saved_annotated_path,
+            "result": result
+        }
+        
+    except ImportError as e:
+        return {
+            "success": False,
+            "error": f"gradio_client not installed: {str(e)}. Please install: pip install gradio_client"
+        }
+    except Exception as e:
+        import traceback
+        return {
+            "success": False,
+            "error": f"Asset mapping processing failed: {str(e)}",
+            "traceback": traceback.format_exc()
         }
 
 if __name__ == "__main__":
