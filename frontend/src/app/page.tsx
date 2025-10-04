@@ -1,5 +1,5 @@
 'use client'
-
+import dynamic from "next/dynamic";
 import { JSX, useEffect, useState } from 'react';
 import { LandingPage } from './pages/LandingPage';
 import { LoginSignup } from './pages/LoginSignup';
@@ -12,10 +12,10 @@ import { OCRProcessor } from './pages/OCRProcessor';
 import { Layout } from './pages/Layout';
 import { LanguageProvider } from './pages/LanguageContext';
 import { AuthProvider, useAuth } from './pages/AuthContext';
-import FRAAtlasMap from './pages/fra-atlas';
+// import FRAAtlasMap from './pages/fra-atlas';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { DSSPage } from './pages/DSSPage';
-
+const FRAAtlasPage = dynamic(() => import("./pages/fra-atlas"), { ssr: false });
 type Page =
   | 'landing'
   | 'auth'
@@ -111,8 +111,8 @@ function AppContent() {
 
   // Landing & Auth
   if (currentPage === 'landing') {
-    return <LandingPage 
-      onGetStarted={() => handlePageChange('auth')} 
+    return <LandingPage
+      onGetStarted={() => handlePageChange('auth')}
       onAdminLogin={() => handlePageChange('auth')}
     />;
   }
@@ -145,7 +145,7 @@ function AppContent() {
     dss: <DSSPage />,
     landing: <Dashboard />, // fallback
     auth: <Dashboard />,
-    atlas: <FRAAtlasMap/> // fallback
+    atlas: <FRAAtlasPage /> // fallback
   };
 
   return (

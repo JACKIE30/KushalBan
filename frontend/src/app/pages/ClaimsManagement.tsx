@@ -236,12 +236,12 @@ export function ClaimsManagement() {
         </div>
 
         {/* AI Quick Analysis Widget */}
-        <div className="lg:col-span-1">
+        {/* <div className="lg:col-span-1">
           <AIQuickAnalysis
             claimId="FRA-2024-001"
             onOpenFullAnalysis={handleOpenAIAnalysis}
           />
-        </div>
+        </div> */}
       </div>
 
       {/* Filters */}

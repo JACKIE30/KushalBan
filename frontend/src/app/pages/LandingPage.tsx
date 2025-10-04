@@ -126,7 +126,7 @@ export function LandingPage({ onGetStarted, onAdminLogin }: LandingPageProps) {
                 <TreePine className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">{t('nav.portal')}</h1>
+                <h1 className="text-lg font-bold text-gray-900">{t("KushalVan")}</h1>
                 <p className="text-xs text-gray-600">{t('nav.subtitle')}</p>
               </div>
             </div>
@@ -471,7 +471,7 @@ export function LandingPage({ onGetStarted, onAdminLogin }: LandingPageProps) {
 
           <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              {t('footer.copyright')}
+              {t("© 2025 KushalVan. All rights reserved.")}
             </p>
             <div className="flex space-x-6 text-sm text-gray-400 mt-4 sm:mt-0">
               <a href="#" className="hover:text-white transition-colors">{t('footer.privacy')}</a>

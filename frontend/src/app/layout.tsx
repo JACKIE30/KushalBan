@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BanRakshak",
+  title: "KushalVan",
   description: "Digital Forest Rights Management System for transparent and efficient implementation of Forest Rights Act",
   keywords: 'forest rights, FRA, government, India, digital governance',
 };
