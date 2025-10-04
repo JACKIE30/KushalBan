@@ -129,34 +129,55 @@ export default function FRAAtlasPage() {
     });
 
     // --- Export GeoJSON ---
-    (window as any).exportToGeoJSON = () => {
+    (window as any).exportToGeoJSON = async () => {
       const data = drawnItems.toGeoJSON();
-      const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "fra_claims.geojson";
-      a.click();
-      URL.revokeObjectURL(url);
+      const geoJsonString = JSON.stringify(data);
+      
+      try {
+        const response = await fetch('/api/fra-atlas/export', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            data: geoJsonString,
+            filename: 'fra_claims.geojson',
+            type: 'geojson'
+          })
+        });
+        
+        const result = await response.json();
+        console.log('Export response:', result);
+        
+        if (result.success) {
+          console.log(`GeoJSON saved successfully to backend! File: ${result.filename}, Path: ${result.filepath}`);
+        } else {
+          console.error(`Failed to save GeoJSON: ${result.error || result.message || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Export error:', error);
+        console.error(`Failed to export GeoJSON to backend: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
     };
 
     // --- Export Polygon Image ---
-    (window as any).exportPolygonImage = () => {
+    (window as any).exportPolygonImage = async () => {
       if (!mapRef.current) {
-        alert("Map not initialized!");
+        console.error("Map not initialized!");
         return;
       }
       if (drawnItemsRef.current.getLayers().length === 0) {
-        alert("No drawn polygon found!");
+        console.error("No drawn polygon found!");
         return;
       }
 
       const map = mapRef.current;
       const polygon = drawnItemsRef.current.getLayers()[0] as L.Polygon;
 
-      leafletImage(map, (err: any, canvas: HTMLCanvasElement) => {
+      leafletImage(map, async (err: any, canvas: HTMLCanvasElement) => {
         if (err) {
           console.error(err);
+          console.error("Failed to capture map image");
           return;
         }
 
@@ -187,12 +208,34 @@ export default function FRAAtlasPage() {
         // Draw clipped map
         ctx.drawImage(canvas, -nw.x, -nw.y);
 
-        // Download
-        const img = clippedCanvas.toDataURL("image/png");
-        const a = document.createElement("a");
-        a.href = img;
-        a.download = "fra_polygon.png";
-        a.click();
+        // Get base64 image data
+        const imageData = clippedCanvas.toDataURL("image/png");
+        
+        try {
+          const response = await fetch('/api/fra-atlas/export', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              data: imageData,
+              filename: 'fra_polygon.png',
+              type: 'image'
+            })
+          });
+          
+          const result = await response.json();
+          console.log('Export response:', result);
+          
+          if (result.success) {
+            console.log(`Image saved successfully to backend! File: ${result.filename}, Path: ${result.filepath}`);
+          } else {
+            console.error(`Failed to save image: ${result.error || result.message || 'Unknown error'}`);
+          }
+        } catch (error) {
+          console.error('Export error:', error);
+          console.error(`Failed to export image to backend: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
       });
     };
   }, []);

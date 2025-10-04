@@ -64,3 +64,6 @@ next-env.d.ts
 node_modules/
 .venv
 backend/.env
+
+frontend/public/assets/india_dist_demo.geojson
+frontend/public/assets/india_village_demo.geojson

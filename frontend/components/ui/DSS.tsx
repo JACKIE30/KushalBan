@@ -193,18 +193,14 @@ export default function DSS() {
       if (result.success) {
         // Automatically refresh land cover data after successful processing
         await fetchLandCoverData();
-        alert(
-          `✅ DSS Updated Successfully!\n\n` +
-          `Land cover data has been processed from the latest FRA polygon image.\n\n` +
-          `Updated data is now displayed below.`
-        );
+        console.log('DSS Updated Successfully! Land cover data has been processed from the latest FRA polygon image.');
       } else {
         throw new Error(result.error || 'Failed to process asset mapping');
       }
     } catch (err) {
       console.error('Asset mapping error:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
-      alert(`Failed to update DSS: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error(`Failed to update DSS: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setUpdating(false);
     }
